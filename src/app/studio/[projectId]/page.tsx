@@ -2,6 +2,8 @@ import { notFound, redirect } from "next/navigation";
 import { getOrCreateDiagram, getProjectForStudio } from "@/actions/diagram";
 import { StudioWorkspace } from "@/features/studio/studio-workspace";
 
+export const dynamic = "force-dynamic";
+
 interface StudioPageProps {
   params: Promise<{ projectId: string }>;
 }

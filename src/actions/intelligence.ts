@@ -20,6 +20,9 @@ export type ActionResult<T> = { error?: string; data?: T };
 
 async function getUserProject(projectId: string) {
   const supabase = await createClient();
+  if (!supabase) {
+    return { error: "Unauthorized" as const, user: null, supabase: null };
+  }
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -38,6 +41,7 @@ async function getUserProject(projectId: string) {
 
 export async function getUserProjectsList() {
   const supabase = await createClient();
+  if (!supabase) return [];
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -92,6 +96,7 @@ export async function runArchitectureAnalysis(projectId: string) {
 
 export async function getLatestArchitectureReport(projectId: string) {
   const supabase = await createClient();
+  if (!supabase) return null;
   const { data } = await supabase
     .from("architecture_reports")
     .select("*")
@@ -134,6 +139,7 @@ export async function runSecurityAnalysis(projectId: string) {
 
 export async function getLatestSecurityReport(projectId: string) {
   const supabase = await createClient();
+  if (!supabase) return null;
   const { data } = await supabase
     .from("security_reports")
     .select("*")
@@ -177,6 +183,7 @@ export async function runCostEstimation(projectId: string, provider: string) {
 
 export async function getLatestCostEstimation(projectId: string, provider?: string) {
   const supabase = await createClient();
+  if (!supabase) return null;
   let query = supabase
     .from("cost_estimations")
     .select("*")
@@ -225,6 +232,7 @@ export async function runTrafficSimulation(
 
 export async function getLatestTrafficSimulation(projectId: string) {
   const supabase = await createClient();
+  if (!supabase) return null;
   const { data } = await supabase
     .from("traffic_simulations")
     .select("*")
@@ -301,6 +309,7 @@ export async function runDeploymentConfig(
 
 export async function getDeploymentConfigs(projectId: string) {
   const supabase = await createClient();
+  if (!supabase) return [];
   const { data } = await supabase
     .from("deployment_configs")
     .select("*")

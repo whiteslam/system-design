@@ -5,6 +5,7 @@ export async function buildProjectIntelligenceContext(
   projectId: string
 ): Promise<ProjectIntelligenceContext | null> {
   const supabase = await createClient();
+  if (!supabase) return null;
   const {
     data: { user },
   } = await supabase.auth.getUser();

@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, SUPABASE_NOT_CONFIGURED_MSG } from "@/lib/supabase/server";
 import { loginSchema, signupSchema } from "@/lib/validations/auth";
 
 export type AuthActionState = {
@@ -24,6 +24,7 @@ export async function loginAction(
   }
 
   const supabase = await createClient();
+  if (!supabase) return { error: SUPABASE_NOT_CONFIGURED_MSG };
   const { error } = await supabase.auth.signInWithPassword(parsed.data);
 
   if (error) {
@@ -49,6 +50,7 @@ export async function signupAction(
   }
 
   const supabase = await createClient();
+  if (!supabase) return { error: SUPABASE_NOT_CONFIGURED_MSG };
   const { error } = await supabase.auth.signUp({
     email: parsed.data.email,
     password: parsed.data.password,
@@ -67,6 +69,7 @@ export async function signupAction(
 
 export async function logoutAction() {
   const supabase = await createClient();
+  if (!supabase) redirect("/");
   await supabase.auth.signOut();
   revalidatePath("/", "layout");
   redirect("/");

@@ -2,6 +2,9 @@ import { Sidebar } from "@/components/layout/sidebar";
 import { AnimatedBackground } from "@/components/shared/animated-background";
 import { PageTransition } from "@/providers/page-transition";
 
+/** Auth/DB pages must not be statically prerendered at build (no cookies or env on CI). */
+export const dynamic = "force-dynamic";
+
 export default function DashboardLayout({
   children,
 }: {

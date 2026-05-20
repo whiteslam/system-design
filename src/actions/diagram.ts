@@ -15,6 +15,7 @@ export type DiagramActionResult = {
 
 export async function getOrCreateDiagram(projectId: string) {
   const supabase = await createClient();
+  if (!supabase) return null;
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -60,6 +61,7 @@ export async function getOrCreateDiagram(projectId: string) {
 
 export async function getProjectForStudio(projectId: string) {
   const supabase = await createClient();
+  if (!supabase) return null;
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -91,6 +93,7 @@ export async function saveDiagramAction(
   title?: string
 ): Promise<DiagramActionResult> {
   const supabase = await createClient();
+  if (!supabase) return { error: "Service unavailable" };
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -122,7 +125,7 @@ export async function saveDiagramAction(
 }
 
 async function syncNormalizedNodes(
-  supabase: Awaited<ReturnType<typeof createClient>>,
+  supabase: NonNullable<Awaited<ReturnType<typeof createClient>>>,
   diagramId: string,
   diagramJson: DiagramJson
 ) {
@@ -160,6 +163,7 @@ export async function generateArchitectureDiagramAction(
   projectId: string
 ): Promise<DiagramActionResult> {
   const supabase = await createClient();
+  if (!supabase) return { error: "Service unavailable" };
   const {
     data: { user },
   } = await supabase.auth.getUser();

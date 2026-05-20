@@ -1,11 +1,11 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, SUPABASE_NOT_CONFIGURED_MSG } from "@/lib/supabase/server";
 import { generateSchema } from "@/lib/validations/generate";
 import { generateBlueprint } from "@/services/ai/openai";
 import { getRateLimitKey, rateLimit } from "@/lib/rate-limit";
-import type { GenerateBlueprintInput } from "@/types";
+import type { Blueprint, GenerateBlueprintInput, Project } from "@/types";
 
 export type GenerateActionState = {
   error?: string;
@@ -64,6 +64,9 @@ export async function generateBlueprintAction(
   }
 
   const supabase = await createClient();
+  if (!supabase) {
+    return { error: SUPABASE_NOT_CONFIGURED_MSG };
+  }
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -208,8 +211,9 @@ export async function generateBlueprintAction(
   }
 }
 
-export async function getBlueprints() {
+export async function getBlueprints(): Promise<Blueprint[]> {
   const supabase = await createClient();
+  if (!supabase) return [];
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -222,11 +226,12 @@ export async function getBlueprints() {
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
-  return data ?? [];
+  return (data ?? []) as Blueprint[];
 }
 
 export async function getBlueprint(id: string) {
   const supabase = await createClient();
+  if (!supabase) return null;
   const { data } = await supabase
     .from("blueprints")
     .select("*, projects(name, preferred_stack, scale, status)")
@@ -236,8 +241,9 @@ export async function getBlueprint(id: string) {
   return data;
 }
 
-export async function getProjects() {
+export async function getProjects(): Promise<Project[]> {
   const supabase = await createClient();
+  if (!supabase) return [];
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -250,11 +256,14 @@ export async function getProjects() {
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
-  return data ?? [];
+  return (data ?? []) as Project[];
 }
 
 export async function getDashboardStats() {
   const supabase = await createClient();
+  if (!supabase) {
+    return { projects: 0, blueprints: 0, completed: 0 };
+  }
   const {
     data: { user },
   } = await supabase.auth.getUser();

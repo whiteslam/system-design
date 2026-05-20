@@ -21,13 +21,14 @@ export default async function DashboardPage() {
   ]);
 
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = supabase
+    ? (await supabase.auth.getUser()).data.user
+    : null;
 
-  const { data: profile } = user
-    ? await supabase.from("users").select("full_name").eq("id", user.id).single()
-    : { data: null };
+  const { data: profile } =
+    user && supabase
+      ? await supabase.from("users").select("full_name").eq("id", user.id).single()
+      : { data: null };
 
   const firstName =
     profile?.full_name?.split(" ")[0] ??

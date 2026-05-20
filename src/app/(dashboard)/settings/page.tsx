@@ -3,13 +3,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default async function SettingsPage() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = supabase
+    ? (await supabase.auth.getUser()).data.user
+    : null;
 
-  const { data: profile } = user
-    ? await supabase.from("users").select("*").eq("id", user.id).single()
-    : { data: null };
+  const { data: profile } =
+    user && supabase
+      ? await supabase.from("users").select("*").eq("id", user.id).single()
+      : { data: null };
 
   return (
     <div className="space-y-8">
