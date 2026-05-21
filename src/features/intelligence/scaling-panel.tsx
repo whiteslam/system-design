@@ -31,14 +31,14 @@ export function ScalingPanel({ projectId }: { projectId: string }) {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4 sm:space-y-8">
       <div className="flex justify-end">
         <Button variant="gradient" onClick={loadAll} disabled={pending}>
           {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <TrendingUp className="h-4 w-4" />}
           Generate scaling plan
         </Button>
       </div>
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
         {cloud && (
           <Card className="border-primary/30 bg-primary/5 lg:col-span-2">
             <CardHeader className="flex flex-row items-center gap-2">
@@ -46,7 +46,7 @@ export function ScalingPanel({ projectId }: { projectId: string }) {
               <CardTitle>Cloud recommendation: {cloud.primary}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2 text-sm text-muted-foreground">
-              <p>{cloud.reasoning}</p>
+              <p className="line-clamp-4 sm:line-clamp-none">{cloud.reasoning}</p>
               <p>
                 <span className="text-foreground">Alternatives: </span>
                 {cloud.alternatives.join(", ")}
@@ -68,7 +68,7 @@ export function ScalingPanel({ projectId }: { projectId: string }) {
           </Card>
         ))}
         {!plan && !cloud && !obs && !pending && (
-          <Card className="border-dashed border-border/50 py-16 text-center text-muted-foreground lg:col-span-2">
+          <Card className="border-dashed border-border/50 py-10 sm:py-16 text-center text-muted-foreground lg:col-span-2">
             Generate a scaling plan to see strategies, cloud fit, and observability.
           </Card>
         )}

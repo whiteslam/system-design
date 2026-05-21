@@ -17,7 +17,7 @@ export default async function CostsProjectPage({
   ]);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4 sm:space-y-8">
       <DashboardHeader
         title="Cost Estimator"
         description="Monthly and yearly estimates across major cloud providers"

@@ -65,7 +65,7 @@ export function DevOpsPanel({
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4 sm:space-y-8">
       <div className="flex flex-wrap items-center gap-3">
         <Select
           value={configType}
@@ -93,12 +93,13 @@ export function DevOpsPanel({
       </div>
 
       {configs.length > 0 && (
-        <div className="flex flex-wrap gap-2">
+        <div className="scrollbar-none -mx-1 flex gap-1.5 overflow-x-auto px-1 pb-0.5 sm:mx-0 sm:flex-wrap sm:gap-2 sm:overflow-visible sm:px-0 sm:pb-0">
           {configs.map((c) => (
             <Button
               key={c.id}
               variant={activeCode === c.generated_code ? "default" : "outline"}
               size="sm"
+              className="shrink-0"
               onClick={() => loadConfig(c)}
             >
               {c.config_type}
@@ -108,7 +109,7 @@ export function DevOpsPanel({
       )}
 
       {!activeCode ? (
-        <Card className="border-dashed py-16 text-center text-muted-foreground">
+        <Card className="border-dashed py-10 sm:py-16 text-center text-muted-foreground">
           Select a config type and generate production-ready deployment files.
         </Card>
       ) : (
@@ -121,7 +122,7 @@ export function DevOpsPanel({
             </Button>
           </CardHeader>
           <CardContent>
-            <pre className="max-h-[480px] overflow-auto rounded-xl bg-muted/30 p-4 font-mono text-xs leading-relaxed text-muted-foreground">
+            <pre className="max-h-[40vh] overflow-auto rounded-lg bg-muted/30 p-3 font-mono text-[11px] leading-relaxed text-muted-foreground sm:max-h-[480px] sm:rounded-xl sm:p-4 sm:text-xs">
               {activeCode}
             </pre>
           </CardContent>

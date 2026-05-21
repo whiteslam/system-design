@@ -6,7 +6,7 @@ export default async function AnalysisIndexPage() {
   const projects = await redirectToFirstProject("/analysis");
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4 sm:space-y-8">
       <DashboardHeader
         title="Architecture Intelligence"
         description="Production readiness scores and AI architecture review"

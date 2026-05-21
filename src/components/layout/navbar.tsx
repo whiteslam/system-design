@@ -46,7 +46,7 @@ export function Navbar() {
 
         <button
           type="button"
-          className="md:hidden"
+          className="touch-manipulation rounded-lg p-1.5 active:scale-95 md:hidden"
           onClick={() => setOpen(!open)}
           aria-label="Toggle menu"
         >
@@ -62,7 +62,7 @@ export function Navbar() {
             exit={{ opacity: 0, height: 0 }}
             className="border-t border-border bg-card/95 backdrop-blur-sm md:hidden"
           >
-            <div className="flex flex-col gap-4 px-4 py-6 safe-x sm:px-6">
+            <div className="flex flex-col gap-3 px-4 py-4 safe-x sm:px-6 sm:py-6">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}

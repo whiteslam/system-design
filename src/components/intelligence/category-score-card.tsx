@@ -24,10 +24,14 @@ export function CategoryScoreCard({
       transition={{ delay }}
     >
       <Card className="border-border/50 bg-card/40 h-full">
-        <CardHeader className="pb-2">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-sm font-medium">{title}</CardTitle>
-            <span className="text-lg font-bold text-primary">{score}</span>
+        <CardHeader className="p-3 pb-2 sm:p-6">
+          <div className="flex items-center justify-between gap-2">
+            <CardTitle className="text-xs font-medium leading-snug sm:text-sm">
+              {title}
+            </CardTitle>
+            <span className="text-base font-bold text-primary sm:text-lg">
+              {score}
+            </span>
           </div>
           <div className="h-1.5 overflow-hidden rounded-full bg-muted">
             <motion.div
@@ -39,7 +43,7 @@ export function CategoryScoreCard({
           </div>
         </CardHeader>
         {insight && (
-          <CardContent className="pt-0">
+          <CardContent className="hidden pt-0 sm:block">
             <p className="text-xs text-muted-foreground line-clamp-3">
               {insight.explanation}
             </p>

@@ -53,11 +53,11 @@ export function TrafficSimulationView({
   const unhealthyCount = services.filter(isUnhealthy).length;
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-stretch">
-        <div className="rounded-2xl border border-primary/30 bg-primary/10 px-6 py-4">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col gap-3 sm:gap-4 lg:flex-row lg:items-stretch">
+        <div className="rounded-xl border border-primary/30 bg-primary/10 px-4 py-3 sm:rounded-2xl sm:px-6 sm:py-4">
           <p className="text-xs text-muted-foreground">Concurrent users</p>
-          <p className="text-3xl font-bold text-primary">
+          <p className="text-2xl font-bold text-primary sm:text-3xl">
             {concurrentUsers.toLocaleString()}
           </p>
         </div>
@@ -65,7 +65,7 @@ export function TrafficSimulationView({
         {displayAccuracy > 0 && (
           <div
             className={cn(
-              "flex min-w-[200px] flex-1 flex-col justify-center rounded-2xl border px-6 py-4",
+              "flex min-w-0 flex-1 flex-col justify-center rounded-xl border px-4 py-3 sm:min-w-[200px] sm:rounded-2xl sm:px-6 sm:py-4",
               accuracyTone(displayAccuracy)
             )}
           >
@@ -74,8 +74,8 @@ export function TrafficSimulationView({
               Simulation accuracy
             </p>
             <p className="mt-1 flex items-baseline gap-2">
-              <span className="text-3xl font-bold">{displayAccuracy}%</span>
-              <span className="text-xs opacity-80">
+              <span className="text-2xl font-bold sm:text-3xl">{displayAccuracy}%</span>
+              <span className="hidden text-xs opacity-80 sm:inline">
                 {displayAccuracy >= 90
                   ? "High confidence"
                   : displayAccuracy >= 80
@@ -142,7 +142,7 @@ export function TrafficSimulationView({
         </Card>
       )}
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
         {services.map((svc, i) => {
           const unhealthy = isUnhealthy(svc);
           const fixing =

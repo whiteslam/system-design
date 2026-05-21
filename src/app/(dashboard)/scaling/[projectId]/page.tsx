@@ -13,7 +13,7 @@ export default async function ScalingProjectPage({
   const projects = await getUserProjectsList();
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4 sm:space-y-8">
       <DashboardHeader
         title="Scalability Planner"
         description="Horizontal scaling, caching, queues, and cloud recommendations"

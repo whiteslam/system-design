@@ -43,7 +43,7 @@ export function TagInput({
   return (
     <div
       className={cn(
-        "flex min-h-11 flex-wrap gap-2 rounded-xl border border-border bg-background/50 p-2 focus-within:ring-2 focus-within:ring-ring",
+        "flex min-h-10 flex-wrap gap-1.5 rounded-lg border border-border bg-background/50 p-1.5 focus-within:ring-2 focus-within:ring-ring sm:min-h-11 sm:gap-2 sm:rounded-xl sm:p-2",
         className
       )}
     >

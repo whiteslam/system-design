@@ -17,7 +17,7 @@ export function LoginForm() {
   return (
     <Card className="w-full max-w-md border-border/50 bg-card/40 backdrop-blur-xl">
       <CardHeader className="text-center">
-        <CardTitle className="text-2xl">Welcome back</CardTitle>
+        <CardTitle className="text-xl sm:text-2xl">Welcome back</CardTitle>
         <CardDescription>Sign in to your ArchFlow AI account</CardDescription>
       </CardHeader>
       <CardContent>

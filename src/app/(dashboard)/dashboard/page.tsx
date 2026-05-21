@@ -15,15 +15,16 @@ export default async function DashboardPage() {
   );
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-5 sm:space-y-8 lg:space-y-10">
       <DashboardHeader
         title={`Welcome back, ${firstName}`}
         description="Your system design workspace"
       >
-        <Button variant="gradient" asChild>
+        <Button variant="gradient" size="sm" className="w-full sm:w-auto" asChild>
           <Link href="/generate">
             <Plus className="h-4 w-4" />
-            New blueprint
+            <span className="sm:hidden">New</span>
+            <span className="hidden sm:inline">New blueprint</span>
           </Link>
         </Button>
       </DashboardHeader>
@@ -35,8 +36,8 @@ export default async function DashboardPage() {
       />
 
       <section>
-        <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Recent blueprints</h2>
+        <div className="mb-3 flex items-center justify-between sm:mb-6">
+          <h2 className="text-sm font-semibold sm:text-lg">Recent blueprints</h2>
           <Link
             href="/projects"
             className="text-sm text-primary hover:underline"
@@ -53,7 +54,7 @@ export default async function DashboardPage() {
             actionHref="/generate"
           />
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:grid-cols-3">
             {blueprints.map((bp) => (
               <ProjectCard
                 key={bp.id}
@@ -66,7 +67,9 @@ export default async function DashboardPage() {
       </section>
 
       <section>
-        <h2 className="mb-6 text-lg font-semibold">Recent projects</h2>
+        <h2 className="mb-3 text-sm font-semibold sm:mb-6 sm:text-lg">
+          Recent projects
+        </h2>
         {projects.length === 0 ? (
           <EmptyState
             icon={FolderKanban}
@@ -76,7 +79,7 @@ export default async function DashboardPage() {
             actionHref="/generate"
           />
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:grid-cols-3">
             {projects.map((project) => (
               <ProjectCard
                 key={project.id}

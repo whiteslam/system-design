@@ -34,7 +34,7 @@ export function ProjectPicker({
   if (projects.length === 0) {
     return (
       <Card className="border-dashed border-border/50 bg-card/30">
-        <CardContent className="flex flex-col items-center gap-4 py-12 text-center">
+        <CardContent className="flex flex-col items-center gap-3 py-8 text-center sm:gap-4 sm:py-12">
           <p className="text-muted-foreground">
             Create a project first to use intelligence features.
           </p>
@@ -48,7 +48,9 @@ export function ProjectPicker({
 
   return (
     <div className="flex w-full flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
-      <span className="shrink-0 text-sm text-muted-foreground">Project:</span>
+      <span className="hidden shrink-0 text-sm text-muted-foreground sm:inline">
+        Project:
+      </span>
       <Select
         value={selected}
         onValueChange={(id) => router.push(`${basePath}/${id}`)}

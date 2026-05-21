@@ -76,12 +76,14 @@ export function SimulationsPanel({
     : { services: [], summary: "", accuracyRate: 0 };
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-wrap gap-2">
+    <div className="space-y-4 sm:space-y-8">
+      <div className="scrollbar-none -mx-1 flex gap-1.5 overflow-x-auto px-1 pb-0.5 sm:mx-0 sm:flex-wrap sm:gap-2 sm:overflow-visible sm:px-0 sm:pb-0">
         {PRESETS.map((p) => (
           <Button
             key={p.users}
             variant="outline"
+            size="sm"
+            className="shrink-0"
             disabled={pending || fixPending}
             onClick={() => run(p.users)}
           >
@@ -96,7 +98,7 @@ export function SimulationsPanel({
       </div>
 
       {!simulation ? (
-        <Card className="border-dashed py-16 text-center text-muted-foreground">
+        <Card className="border-dashed py-10 sm:py-16 text-center text-muted-foreground">
           Pick a traffic profile to simulate load across your architecture.
         </Card>
       ) : (

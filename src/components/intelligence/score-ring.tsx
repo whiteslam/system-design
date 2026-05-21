@@ -43,7 +43,7 @@ export function ScoreRing({ score, label = "Overall", size = 160 }: ScoreRingPro
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-4xl font-bold">{score}</span>
+          <span className="text-3xl font-bold sm:text-4xl">{score}</span>
           <span className="text-xs text-muted-foreground">/ 100</span>
         </div>
       </div>

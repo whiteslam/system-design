@@ -74,14 +74,14 @@ export function BlueprintPromptPanel({ blueprint }: BlueprintPromptPanelProps) {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <Card className="border-primary/30 bg-primary/5">
         <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Sparkles className="h-5 w-5 text-primary" />
+          <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+            <Sparkles className="h-4 w-4 text-primary sm:h-5 sm:w-5" />
             Full detailed prompt
           </CardTitle>
-          <p className="text-sm text-muted-foreground">
+          <p className="hidden text-sm text-muted-foreground sm:block">
             Customize which blueprint sections to include, then copy one
             comprehensive implementation prompt for Cursor, Claude, ChatGPT, or
             your team.
@@ -134,7 +134,7 @@ export function BlueprintPromptPanel({ blueprint }: BlueprintPromptPanelProps) {
         </CardContent>
       </Card>
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,280px)_1fr]">
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,280px)_1fr] lg:gap-6">
         <Card className="border-border/50 bg-card/30 lg:sticky lg:top-8 lg:self-start">
           <CardHeader className="pb-3">
             <CardTitle className="text-base">Customize sections</CardTitle>

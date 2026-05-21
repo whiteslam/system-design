@@ -9,8 +9,6 @@ import {
   Sparkles,
   Settings,
   LogOut,
-  Menu,
-  X,
   BarChart3,
   TrendingUp,
   Shield,
@@ -20,7 +18,6 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { logoutAction } from "@/actions/auth";
-import { useState } from "react";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -40,7 +37,6 @@ const intelligenceItems = [
 
 export function Sidebar() {
   const pathname = usePathname();
-  const [mobileOpen, setMobileOpen] = useState(false);
 
   const NavContent = () => (
     <>
@@ -56,7 +52,6 @@ export function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
-              onClick={() => setMobileOpen(false)}
               className={cn(
                 "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors duration-150",
                 isActive
@@ -80,7 +75,6 @@ export function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
-              onClick={() => setMobileOpen(false)}
               className={cn(
                 "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors duration-150",
                 isActive
@@ -109,30 +103,10 @@ export function Sidebar() {
 
   return (
     <>
-      <button
-        type="button"
-        className="fixed left-4 top-4 z-50 rounded-xl border border-border bg-card p-2 safe-top lg:hidden"
-        onClick={() => setMobileOpen(!mobileOpen)}
-        aria-label="Toggle sidebar"
-      >
-        {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-      </button>
-
+      {/* Desktop sidebar only — mobile uses bottom nav + sheet */}
       <aside className="hidden w-64 shrink-0 flex-col border-r border-border/50 bg-card/30 p-6 backdrop-blur-xl lg:flex">
         <NavContent />
       </aside>
-
-      {mobileOpen && (
-        <aside className="fixed inset-y-0 left-0 z-40 flex w-[min(16rem,85vw)] animate-in slide-in-from-left flex-col border-r border-border bg-card p-4 duration-200 safe-top safe-bottom sm:p-6 lg:hidden">
-          <NavContent />
-        </aside>
-      )}
-      {mobileOpen && (
-        <div
-          className="fixed inset-0 z-30 bg-black/50 lg:hidden"
-          onClick={() => setMobileOpen(false)}
-        />
-      )}
     </>
   );
 }

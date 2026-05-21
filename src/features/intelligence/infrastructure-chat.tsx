@@ -47,7 +47,7 @@ export function InfrastructureChat({ projectId }: { projectId: string }) {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="max-h-64 space-y-3 overflow-y-auto rounded-xl border border-border/50 bg-muted/20 p-4">
+        <div className="max-h-48 space-y-2 overflow-y-auto rounded-xl border border-border/50 bg-muted/20 p-3 sm:max-h-64 sm:space-y-3 sm:p-4">
           {messages.length === 0 ? (
             <p className="text-sm text-muted-foreground">
               Ask about scaling, incidents, or deployment — e.g. &quot;What happens if Redis
@@ -59,8 +59,8 @@ export function InfrastructureChat({ projectId }: { projectId: string }) {
                 key={i}
                 className={
                   msg.role === "user"
-                    ? "ml-8 rounded-xl bg-primary/10 px-3 py-2 text-sm"
-                    : "mr-8 rounded-xl bg-muted/40 px-3 py-2 text-sm text-muted-foreground"
+                    ? "ml-4 rounded-lg bg-primary/10 px-3 py-2 text-sm sm:ml-8 sm:rounded-xl"
+                    : "mr-4 rounded-lg bg-muted/40 px-3 py-2 text-sm text-muted-foreground sm:mr-8 sm:rounded-xl"
                 }
               >
                 {msg.content}

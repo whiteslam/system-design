@@ -40,7 +40,7 @@ export function SecurityPanel({
   const vulns = (report?.vulnerabilities ?? []) as SecurityVulnerability[];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4 sm:space-y-8">
       <div className="flex justify-end">
         <Button variant="gradient" onClick={run} disabled={pending}>
           {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Shield className="h-4 w-4" />}
@@ -48,7 +48,7 @@ export function SecurityPanel({
         </Button>
       </div>
       {!report ? (
-        <Card className="border-dashed py-16 text-center text-muted-foreground">
+        <Card className="border-dashed py-10 sm:py-16 text-center text-muted-foreground">
           No security report yet.
         </Card>
       ) : (

@@ -51,9 +51,9 @@ export function AnalysisPanel({ projectId, initialReport }: AnalysisPanelProps) 
   >;
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <p className="text-sm text-muted-foreground">
+    <div className="space-y-4 sm:space-y-8">
+      <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-4">
+        <p className="hidden text-sm text-muted-foreground sm:block">
           AI reviews your diagram, blueprint, and project constraints.
         </p>
         <Button variant="gradient" onClick={run} disabled={pending}>
@@ -67,16 +67,22 @@ export function AnalysisPanel({ projectId, initialReport }: AnalysisPanelProps) 
       </div>
 
       {!report ? (
-        <Card className="border-dashed border-border/50 bg-card/30 py-16 text-center">
+        <Card className="border-dashed border-border/50 bg-card/30 py-10 sm:py-16 text-center">
           <p className="text-muted-foreground">
             No report yet. Run analysis to get production readiness scores.
           </p>
         </Card>
       ) : (
         <>
-          <div className="flex flex-col items-center gap-8 rounded-2xl border border-border/50 bg-card/30 p-8 lg:flex-row lg:items-start">
-            <ScoreRing score={report.overall_score} label="Production readiness" />
-            <div className="grid flex-1 gap-3 sm:grid-cols-2">
+          <div className="flex flex-col items-center gap-4 rounded-xl border border-border/50 bg-card/30 p-4 sm:gap-8 sm:rounded-2xl sm:p-8 lg:flex-row lg:items-start">
+            <div className="origin-center scale-[0.88] sm:scale-100">
+              <ScoreRing
+                score={report.overall_score}
+                label="Production readiness"
+                size={128}
+              />
+            </div>
+            <div className="grid flex-1 grid-cols-2 gap-2 sm:gap-3">
               {CATEGORIES.map((c, i) => (
                 <CategoryScoreCard
                   key={c.key}

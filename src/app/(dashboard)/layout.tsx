@@ -1,4 +1,5 @@
 import { Sidebar } from "@/components/layout/sidebar";
+import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav";
 import { AnimatedBackground } from "@/components/shared/animated-background";
 import { PageTransition } from "@/providers/page-transition";
 
@@ -14,13 +15,14 @@ export default function DashboardLayout({
     <div className="relative flex min-h-screen-safe">
       <AnimatedBackground />
       <Sidebar />
-      <main className="relative z-[1] min-w-0 flex-1 overflow-y-auto pt-14 safe-top lg:pt-0">
+      <main className="mobile-main-pad relative z-[1] min-w-0 flex-1 overflow-y-auto overflow-x-hidden pt-12 safe-top lg:pt-0">
         <PageTransition>
-          <div className="mx-auto max-w-6xl px-4 py-6 safe-x sm:px-6 sm:py-8 lg:px-10 lg:py-10">
+          <div className="mx-auto max-w-6xl px-3 py-4 safe-x sm:px-5 sm:py-6 md:px-6 md:py-8 lg:px-10 lg:py-10">
             {children}
           </div>
         </PageTransition>
       </main>
+      <MobileBottomNav />
     </div>
   );
 }

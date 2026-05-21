@@ -37,10 +37,10 @@ Rate Limit: 100 req/min`,
 
 export function DemoPreview() {
   return (
-    <section id="demo" className="px-4 py-16 safe-x sm:px-6 sm:py-24">
+    <section id="demo" className="px-4 py-12 safe-x sm:px-6 sm:py-24">
       <div className="mx-auto max-w-5xl">
-        <div className="mb-12 text-center">
-          <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl md:text-4xl">
+        <div className="mb-6 text-center sm:mb-12">
+          <h2 className="text-xl font-bold tracking-tight text-foreground sm:text-3xl md:text-4xl">
             See a blueprint in action
           </h2>
           <p className="mt-4 text-muted-foreground">

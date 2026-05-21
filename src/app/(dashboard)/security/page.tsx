@@ -6,7 +6,7 @@ export default async function SecurityIndexPage() {
   const projects = await redirectToFirstProject("/security");
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4 sm:space-y-8">
       <DashboardHeader
         title="Security Analyzer"
         description="Vulnerability detection and remediation guidance"

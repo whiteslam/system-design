@@ -181,9 +181,9 @@ export function AIInsightsPanel() {
   const isBusy = isPending;
 
   return (
-    <div className="absolute bottom-3 left-0 right-0 z-10 mx-auto flex max-h-[45vh] max-w-2xl flex-col gap-2 overflow-y-auto px-3 safe-bottom sm:bottom-4 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 sm:px-4">
+    <div className="absolute bottom-2 left-0 right-0 z-10 mx-auto flex max-h-[38vh] max-w-2xl flex-col gap-1.5 overflow-y-auto px-2 safe-bottom sm:bottom-4 sm:max-h-[45vh] sm:gap-2 sm:px-3 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 sm:px-4">
       {healthWarnings.length > 0 && (
-        <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 backdrop-blur-xl">
+        <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 backdrop-blur-xl sm:rounded-xl sm:px-4 sm:py-3">
           <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <p className="flex items-center gap-2 text-xs font-semibold text-amber-400">
               <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
@@ -229,7 +229,7 @@ export function AIInsightsPanel() {
               </Button>
             </div>
           </div>
-          <ul className="space-y-3">
+          <ul className="space-y-2 sm:space-y-3">
             {healthWarnings.map((w) => {
               const loadingSingle = isPending && activeTask === `health:${w}`;
               return (
@@ -277,7 +277,7 @@ export function AIInsightsPanel() {
       )}
 
       {suggestions.length > 0 && (
-        <div className="rounded-xl border border-primary/30 bg-primary/10 px-4 py-3 backdrop-blur-xl">
+        <div className="rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 backdrop-blur-xl sm:rounded-xl sm:px-4 sm:py-3">
           <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <p className="flex items-center gap-2 text-xs font-semibold text-primary">
               <Lightbulb className="h-3.5 w-3.5 shrink-0" />

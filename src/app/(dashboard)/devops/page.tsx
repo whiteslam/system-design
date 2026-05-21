@@ -6,7 +6,7 @@ export default async function DevOpsIndexPage() {
   const projects = await redirectToFirstProject("/devops");
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4 sm:space-y-8">
       <DashboardHeader
         title="DevOps Generator"
         description="Docker, Kubernetes, CI/CD, and Terraform configs"

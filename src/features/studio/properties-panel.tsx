@@ -34,7 +34,7 @@ export function PropertiesPanel({ className, onClose }: PropertiesPanelProps) {
         className
       )}
     >
-      <div className="border-b border-border/50 p-4">
+      <div className="border-b border-border/50 p-3 sm:p-4">
         <div className="flex items-start justify-between gap-2">
           <div>
             <h2 className="text-sm font-semibold">Properties</h2>
@@ -60,7 +60,7 @@ export function PropertiesPanel({ className, onClose }: PropertiesPanelProps) {
           Click a component to view and edit its configuration
         </div>
       ) : (
-        <div className="flex-1 space-y-4 overflow-y-auto p-4">
+        <div className="flex-1 space-y-3 overflow-y-auto p-3 sm:space-y-4 sm:p-4">
           <div className="space-y-2">
             <Label>Name</Label>
             <Input

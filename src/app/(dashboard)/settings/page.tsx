@@ -13,11 +13,11 @@ export default async function SettingsPage() {
       : { data: null };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4 sm:space-y-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
-        <p className="mt-1 text-muted-foreground">
-          Manage your account preferences
+        <h1 className="text-xl font-bold tracking-tight sm:text-3xl">Settings</h1>
+        <p className="mt-0.5 text-xs text-muted-foreground sm:mt-1 sm:text-sm">
+          Account preferences
         </p>
       </div>
 

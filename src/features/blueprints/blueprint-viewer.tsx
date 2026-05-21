@@ -67,7 +67,7 @@ export function BlueprintViewer({ blueprint }: BlueprintViewerProps) {
     : (blueprint[current.key] as string | null);
 
   return (
-    <div className="flex flex-col gap-6 lg:flex-row lg:gap-8">
+    <div className="flex flex-col gap-4 lg:flex-row lg:gap-8">
       <nav className="lg:w-56 lg:shrink-0">
         <div className="scrollbar-none -mx-1 flex gap-2 overflow-x-auto px-1 pb-1 lg:mx-0 lg:block lg:space-y-1 lg:overflow-visible lg:px-0 lg:pb-0">
           <div className="flex gap-2 lg:sticky lg:top-8 lg:block lg:space-y-1 lg:rounded-2xl lg:border lg:border-border/50 lg:bg-card/30 lg:p-2 lg:backdrop-blur-xl">
@@ -77,7 +77,7 @@ export function BlueprintViewer({ blueprint }: BlueprintViewerProps) {
                 type="button"
                 onClick={() => setActiveSection(section.id)}
                 className={cn(
-                  "shrink-0 rounded-xl px-3 py-2 text-left text-sm font-medium transition-colors duration-150 lg:w-full",
+                  "shrink-0 rounded-lg px-2.5 py-1.5 text-left text-xs font-medium transition-colors duration-150 sm:rounded-xl sm:px-3 sm:py-2 sm:text-sm lg:w-full",
                   activeSection === section.id
                     ? "border border-primary/20 bg-primary/10 text-primary"
                     : "text-muted-foreground hover:bg-accent hover:text-foreground"
@@ -90,7 +90,7 @@ export function BlueprintViewer({ blueprint }: BlueprintViewerProps) {
               type="button"
               onClick={() => setActiveSection(promptNavItem.id)}
               className={cn(
-                "flex shrink-0 items-center gap-2 rounded-xl px-3 py-2 text-left text-sm font-medium transition-colors duration-150 lg:w-full",
+                "flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-left text-xs font-medium transition-colors duration-150 sm:gap-2 sm:rounded-xl sm:px-3 sm:py-2 sm:text-sm lg:w-full",
                 activeSection === promptNavItem.id
                   ? "border border-primary/20 bg-primary/10 text-primary"
                   : "text-muted-foreground hover:bg-accent hover:text-foreground"
@@ -110,7 +110,7 @@ export function BlueprintViewer({ blueprint }: BlueprintViewerProps) {
           <>
             <Card className="border-border/50 bg-card/30">
               <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <CardTitle className="text-lg sm:text-xl">
+                <CardTitle className="text-base sm:text-xl">
                   {current.label}
                 </CardTitle>
                 {content && <CopyButton content={content} />}

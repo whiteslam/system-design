@@ -6,7 +6,7 @@ export default async function SimulationsIndexPage() {
   const projects = await redirectToFirstProject("/simulations");
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4 sm:space-y-8">
       <DashboardHeader
         title="Traffic Simulation"
         description="Simulate load, bottlenecks, and service pressure"

@@ -6,7 +6,7 @@ export default async function CostsIndexPage() {
   const projects = await redirectToFirstProject("/costs");
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4 sm:space-y-8">
       <DashboardHeader
         title="Cost Estimator"
         description="Multi-cloud infrastructure cost breakdowns"

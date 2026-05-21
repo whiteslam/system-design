@@ -17,7 +17,7 @@ export default async function SecurityProjectPage({
   ]);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4 sm:space-y-8">
       <DashboardHeader
         title="Security Analyzer"
         description="Auth, API exposure, encryption, and infrastructure risks"

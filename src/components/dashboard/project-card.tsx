@@ -52,26 +52,26 @@ export function ProjectCard({
     <Card className="group flex h-full flex-col transition-all hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5">
       <div className="relative flex flex-1 flex-col">
         <Link href={href} className="flex flex-1 flex-col">
-          <CardHeader className="pb-3">
-            <div className="flex items-start justify-between gap-2 pr-8">
-              <CardTitle className="line-clamp-1 text-base transition-colors group-hover:text-primary">
+          <CardHeader className="p-3 pb-2 sm:p-6 sm:pb-3">
+            <div className="flex flex-col gap-1.5 pr-6 sm:flex-row sm:items-start sm:justify-between sm:gap-2 sm:pr-8">
+              <CardTitle className="line-clamp-2 text-xs leading-snug transition-colors group-hover:text-primary sm:line-clamp-1 sm:text-base">
                 {name}
               </CardTitle>
               <Badge
                 variant={statusVariant[status] ?? "default"}
-                className="shrink-0 capitalize"
+                className="w-fit shrink-0 capitalize text-[10px] sm:text-xs"
               >
                 {status}
               </Badge>
             </div>
           </CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent className="hidden space-y-2 px-4 pb-4 pt-0 sm:block sm:space-y-3 sm:px-6 sm:pb-6">
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <Layers className="h-3.5 w-3.5 shrink-0" />
               <span className="truncate">{stack}</span>
             </div>
-            <div className="flex items-center justify-between text-xs text-muted-foreground">
-              <span>Scale: {scale}</span>
+            <div className="flex items-center justify-between gap-1 text-[11px] text-muted-foreground sm:text-xs">
+              <span className="truncate">Scale: {scale}</span>
               {date && (
                 <span className="flex items-center gap-1">
                   <Calendar className="h-3.5 w-3.5" />

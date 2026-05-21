@@ -32,16 +32,17 @@ export function GeneratingOverlay({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 p-4 backdrop-blur-md"
+          className="fixed inset-0 z-50 flex items-end justify-center bg-background/80 p-0 backdrop-blur-md safe-x sm:items-center sm:p-4"
         >
           <motion.div
-            initial={{ scale: 0.95, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="mx-auto w-full max-w-md rounded-2xl border border-border/50 bg-card/90 p-6 shadow-2xl backdrop-blur-xl sm:p-8"
+            initial={{ y: 24, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 16, opacity: 0 }}
+            className="mx-auto w-full max-w-md rounded-t-2xl border border-border/50 bg-card/95 p-5 shadow-2xl backdrop-blur-xl safe-bottom sm:rounded-2xl sm:p-8"
           >
             <div
               className={cn(
-                "mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-2xl",
+                "mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl sm:mb-6 sm:h-14 sm:w-14 sm:rounded-2xl",
                 phase === "success" && "bg-emerald-500/20",
                 phase === "error" && "bg-destructive/20",
                 phase === "generating" &&
@@ -57,7 +58,7 @@ export function GeneratingOverlay({
               )}
             </div>
 
-            <h3 className="text-center text-lg font-semibold text-foreground">
+            <h3 className="text-center text-base font-semibold text-foreground sm:text-lg">
               {phase === "success"
                 ? "Blueprint ready!"
                 : phase === "error"

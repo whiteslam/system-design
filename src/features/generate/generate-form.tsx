@@ -171,7 +171,7 @@ export function GenerateForm() {
   const overlayProgress = isPending ? progress : displayProgress;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <GeneratingOverlay
         open={overlayOpen}
         progress={overlayProgress}
@@ -220,10 +220,10 @@ export function GenerateForm() {
         </div>
       )}
 
-      <form onSubmit={onSubmit} className="space-y-8">
+      <form onSubmit={onSubmit} className="space-y-4 sm:space-y-8">
         <Card className="border-border/50 bg-card/30">
           <CardHeader>
-            <CardTitle className="text-lg">Project basics</CardTitle>
+            <CardTitle className="text-base sm:text-lg">Project basics</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
@@ -301,7 +301,7 @@ export function GenerateForm() {
 
         <Card className="border-border/50 bg-card/30">
           <CardHeader>
-            <CardTitle className="text-lg">Scale & constraints</CardTitle>
+            <CardTitle className="text-base sm:text-lg">Scale & constraints</CardTitle>
           </CardHeader>
           <CardContent className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
@@ -399,7 +399,7 @@ export function GenerateForm() {
 
         <Card className="border-border/50 bg-card/30">
           <CardHeader>
-            <CardTitle className="text-lg">Technical requirements</CardTitle>
+            <CardTitle className="text-base sm:text-lg">Technical requirements</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid gap-4 sm:grid-cols-2">

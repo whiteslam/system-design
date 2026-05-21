@@ -31,19 +31,23 @@ export function StatsCards({
   ];
 
   return (
-    <div className="grid gap-4 sm:grid-cols-3">
+    <div className="grid grid-cols-3 gap-2 sm:gap-4">
       {stats.map((stat) => (
         <Card
           key={stat.label}
           className="border-border/50 bg-card/30 transition-colors hover:border-primary/20"
         >
-          <CardContent className="flex items-center gap-4 p-6">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10">
-              <stat.icon className="h-5 w-5 text-primary" />
+          <CardContent className="flex flex-col items-center gap-1.5 p-3 text-center sm:flex-row sm:gap-4 sm:p-5 sm:text-left">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 sm:h-11 sm:w-11 sm:rounded-xl">
+              <stat.icon className="h-4 w-4 text-primary sm:h-5 sm:w-5" />
             </div>
-            <div>
-              <p className="text-2xl font-bold">{stat.value}</p>
-              <p className="text-sm text-muted-foreground">{stat.label}</p>
+            <div className="min-w-0">
+              <p className="text-lg font-bold leading-none sm:text-2xl">
+                {stat.value}
+              </p>
+              <p className="mt-0.5 truncate text-[10px] text-muted-foreground sm:text-sm">
+                {stat.label}
+              </p>
             </div>
           </CardContent>
         </Card>

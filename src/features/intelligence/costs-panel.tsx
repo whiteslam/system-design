@@ -44,7 +44,7 @@ export function CostsPanel({
     []) as CostBreakdownItem[];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4 sm:space-y-8">
       <div className="flex flex-wrap items-center gap-3">
         <Select value={provider} onValueChange={setProvider}>
           <SelectTrigger className="w-full min-w-0 sm:w-[160px]">
@@ -64,18 +64,18 @@ export function CostsPanel({
         </Button>
       </div>
       {!estimation ? (
-        <Card className="border-dashed py-16 text-center text-muted-foreground">
+        <Card className="border-dashed py-10 sm:py-16 text-center text-muted-foreground">
           Select a provider and run cost estimation.
         </Card>
       ) : (
-        <div className="grid gap-6 lg:grid-cols-2">
+        <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
           <Card className="border-border/50 bg-card/30">
             <CardHeader>
               <CardTitle className="text-sm">{estimation.provider} estimate</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <p className="text-3xl font-bold">
+                <p className="text-2xl font-bold sm:text-3xl">
                   ${Number(estimation.estimated_monthly_cost).toLocaleString()}
                   <span className="text-sm font-normal text-muted-foreground">/mo</span>
                 </p>

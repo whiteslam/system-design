@@ -21,7 +21,7 @@ export default async function AnalysisProjectPage({
   ]);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4 sm:space-y-6 lg:space-y-8">
       <DashboardHeader
         title="Architecture Intelligence"
         description="AI-powered production readiness and architecture health"

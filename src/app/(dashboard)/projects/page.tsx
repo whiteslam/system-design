@@ -18,7 +18,7 @@ export default async function ProjectsPage() {
   );
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4 sm:space-y-8">
       <DashboardHeader
         title="Projects"
         description="All your projects and blueprints"
@@ -40,7 +40,7 @@ export default async function ProjectsPage() {
           actionHref="/generate"
         />
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:grid-cols-3">
           {projects.map((project) => {
             const blueprintId = blueprintByProject.get(project.id);
             return (

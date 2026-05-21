@@ -17,7 +17,7 @@ export default async function SimulationsProjectPage({
   ]);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4 sm:space-y-8">
       <DashboardHeader
         title="Traffic Simulation"
         description="Visual load testing across your system design"

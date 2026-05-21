@@ -100,7 +100,7 @@ export function ComponentPalette({ className, onClose }: ComponentPaletteProps) 
         className
       )}
     >
-      <div className="border-b border-border/50 p-4">
+      <div className="border-b border-border/50 p-3 sm:p-4">
         <div className="mb-3 flex items-center justify-between gap-2">
           <h2 className="text-sm font-semibold">Components</h2>
           {onClose && (

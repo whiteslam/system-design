@@ -49,10 +49,10 @@ const features = [
 
 export function Features() {
   return (
-    <section id="features" className="px-4 py-16 safe-x sm:px-6 sm:py-24">
+    <section id="features" className="px-4 py-12 safe-x sm:px-6 sm:py-24">
       <div className="mx-auto max-w-7xl">
-        <div className="mb-16 text-center">
-          <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl md:text-4xl">
+        <div className="mb-8 text-center sm:mb-16">
+          <h2 className="text-xl font-bold tracking-tight text-foreground sm:text-3xl md:text-4xl">
             Everything you need to ship
           </h2>
           <p className="mt-4 text-muted-foreground">
@@ -60,19 +60,21 @@ export function Features() {
           </p>
         </div>
 
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-2 gap-2 sm:gap-6 lg:grid-cols-3">
           {features.map((feature) => (
             <Card
               key={feature.title}
               className="group h-full border-border/50 bg-card/30 transition-colors hover:border-primary/30 hover:bg-card/50"
             >
-              <CardHeader>
-                <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 transition-colors group-hover:bg-primary/20">
-                  <feature.icon className="h-5 w-5 text-primary" />
+              <CardHeader className="space-y-0 p-3 sm:space-y-1.5 sm:p-6">
+                <div className="mb-1.5 flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 transition-colors group-hover:bg-primary/20 sm:mb-2 sm:h-10 sm:w-10 sm:rounded-xl">
+                  <feature.icon className="h-4 w-4 text-primary sm:h-5 sm:w-5" />
                 </div>
-                <CardTitle className="text-base">{feature.title}</CardTitle>
+                <CardTitle className="text-xs leading-snug sm:text-base">
+                  {feature.title}
+                </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="hidden sm:block">
                 <p className="text-sm text-muted-foreground">
                   {feature.description}
                 </p>

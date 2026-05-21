@@ -274,3 +274,47 @@ body {
 .animate-pulse-slow {
   animation: pulse-slow 2s ease-in-out infinite;
 }
+
+/* --- Mobile app density (premium compact UX) --- */
+.touch-manipulation {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-main-pad {
+  padding-bottom: calc(4.25rem + env(safe-area-inset-bottom, 0px));
+}
+
+@media (min-width: 1024px) {
+  .mobile-main-pad {
+    padding-bottom: 0;
+  }
+}
+
+/* Tighter page rhythm on phones */
+@media (max-width: 639px) {
+  .glass {
+    backdrop-filter: blur(12px);
+  }
+
+  .page-shell .rounded-2xl {
+    border-radius: 0.875rem;
+  }
+
+  .studio-controls {
+    transform: scale(0.88);
+    transform-origin: bottom right;
+  }
+
+  .studio-flow .react-flow__controls {
+    margin: 4px !important;
+  }
+}
+
+/* Prevent horizontal overflow site-wide */
+img,
+video,
+svg,
+canvas {
+  max-width: 100%;
+}
