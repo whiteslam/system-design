@@ -138,11 +138,22 @@ All user data is scoped by `user_id` in schema policies. Do not disable RLS in p
 
 | Issue | Fix |
 |-------|-----|
+| **`404 DEPLOYMENT_NOT_FOUND` (bom1::…)** | The URL points to a deployment that does not exist. Open **Vercel → Project → Deployments** and use the latest **Ready** deployment URL, or your **Production domain**. Redeploy from **Deployments → Redeploy**. Do not use old preview links from email. Removed custom `regions` from `vercel.json` — redeploy after pulling latest `main`. |
 | Build fails fetching Google Fonts | Project uses system fonts (no build-time font fetch). |
 | `Supabase is not configured` | Set `NEXT_PUBLIC_SUPABASE_*` on Vercel and redeploy. |
 | AI returns 401 | Check `OPENROUTER_API_KEY` and credits at openrouter.ai. |
 | 504 on generate | Upgrade Vercel plan or reduce `OPENROUTER_USE_MULTI_MODEL` models. |
 | Rate limit errors | Expected; limits in `src/lib/security/ai-rate-limit.ts`. Use Upstash Redis for multi-instance. |
+
+### Fix `DEPLOYMENT_NOT_FOUND` (step by step)
+
+1. Go to [vercel.com/dashboard](https://vercel.com/dashboard) → your **ArchFlow** project.
+2. Open **Deployments** — find the latest deployment with status **Ready** (green).
+3. If the latest is **Error** or **Canceled**, click it → view **Build Logs**, fix env/build issues, then **Redeploy**.
+4. Use the **Visit** button on a **Ready** deployment, or open your **Domains** tab production URL (`*.vercel.app` or custom domain).
+5. **Settings → Environment Variables** — confirm `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `OPENROUTER_API_KEY`, `NEXT_PUBLIC_SITE_URL` are set for **Production**, then **Redeploy** (required after env changes).
+6. **Settings → Domains** — ensure production domain is assigned to **Production** branch (`main`), not a deleted preview.
+7. Push the latest code (includes simplified `vercel.json`) and let Vercel auto-deploy, or run **Redeploy** manually.
 
 ---
 
