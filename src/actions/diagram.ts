@@ -3,7 +3,14 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { generateDiagramFromAI } from "@/services/ai/diagram-generator";
+import { implementSuggestionWithAI } from "@/services/ai/implement-suggestion";
+import {
+  fixAllHealthWarningsWithAI,
+  fixHealthWarningWithAI,
+} from "@/services/ai/fix-health-warnings";
 import type { DiagramJson } from "@/types/diagram";
+import type { SuggestionImplementationResult } from "@/types/suggestion-implementation";
+import { enforceAiRateLimit } from "@/lib/security/ai-rate-limit";
 
 export type DiagramActionResult = {
   error?: string;
@@ -90,7 +97,8 @@ export async function getProjectForStudio(projectId: string) {
 export async function saveDiagramAction(
   diagramId: string,
   diagramJson: DiagramJson,
-  title?: string
+  title?: string,
+  options?: { light?: boolean }
 ): Promise<DiagramActionResult> {
   const supabase = await createClient();
   if (!supabase) return { error: "Service unavailable" };
@@ -118,9 +126,11 @@ export async function saveDiagramAction(
 
   if (error) return { error: error.message };
 
-  await syncNormalizedNodes(supabase, diagramId, diagramJson);
+  if (!options?.light) {
+    await syncNormalizedNodes(supabase, diagramId, diagramJson);
+    revalidatePath(`/studio/${diagram.project_id}`);
+  }
 
-  revalidatePath(`/studio/${diagram.project_id}`);
   return { success: true };
 }
 
@@ -159,6 +169,121 @@ async function syncNormalizedNodes(
   }
 }
 
+export async function implementSuggestionAction(
+  suggestion: string,
+  diagramJson: DiagramJson,
+  suggestions: string[],
+  healthWarnings: string[]
+): Promise<
+  | { error: string }
+  | { success: true; implementation: SuggestionImplementationResult }
+> {
+  const supabase = await createClient();
+  if (!supabase) return { error: "Service unavailable" };
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Unauthorized" };
+
+  const limited = enforceAiRateLimit(user.id, "implement-suggestion");
+  if (!limited.ok) return { error: limited.error };
+
+  if (!suggestion.trim()) {
+    return { error: "Suggestion is required" };
+  }
+
+  try {
+    const implementation = await implementSuggestionWithAI(
+      diagramJson,
+      suggestion,
+      suggestions,
+      healthWarnings
+    );
+    return { success: true, implementation };
+  } catch (err) {
+    return {
+      error:
+        err instanceof Error ? err.message : "Failed to implement suggestion",
+    };
+  }
+}
+
+export async function fixHealthWarningAction(
+  healthWarning: string,
+  diagramJson: DiagramJson,
+  suggestions: string[],
+  healthWarnings: string[]
+): Promise<
+  | { error: string }
+  | { success: true; implementation: SuggestionImplementationResult }
+> {
+  const supabase = await createClient();
+  if (!supabase) return { error: "Service unavailable" };
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Unauthorized" };
+
+  const limited = enforceAiRateLimit(user.id, "implement-suggestion");
+  if (!limited.ok) return { error: limited.error };
+
+  if (!healthWarning.trim()) {
+    return { error: "Health warning is required" };
+  }
+
+  try {
+    const implementation = await fixHealthWarningWithAI(
+      diagramJson,
+      healthWarning,
+      healthWarnings,
+      suggestions
+    );
+    return { success: true, implementation };
+  } catch (err) {
+    return {
+      error:
+        err instanceof Error ? err.message : "Failed to fix health warning",
+    };
+  }
+}
+
+export async function fixAllHealthWarningsAction(
+  diagramJson: DiagramJson,
+  suggestions: string[],
+  healthWarnings: string[]
+): Promise<
+  | { error: string }
+  | { success: true; implementation: SuggestionImplementationResult }
+> {
+  const supabase = await createClient();
+  if (!supabase) return { error: "Service unavailable" };
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Unauthorized" };
+
+  const limitedAll = enforceAiRateLimit(user.id, "implement-suggestion");
+  if (!limitedAll.ok) return { error: limitedAll.error };
+
+  if (healthWarnings.length === 0) {
+    return { error: "No health warnings to fix" };
+  }
+
+  try {
+    const implementation = await fixAllHealthWarningsWithAI(
+      diagramJson,
+      healthWarnings,
+      suggestions
+    );
+    return { success: true, implementation };
+  } catch (err) {
+    return {
+      error:
+        err instanceof Error ? err.message : "Failed to fix architecture health",
+    };
+  }
+}
+
 export async function generateArchitectureDiagramAction(
   projectId: string
 ): Promise<DiagramActionResult> {
@@ -168,6 +293,9 @@ export async function generateArchitectureDiagramAction(
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { error: "Unauthorized" };
+
+  const limitedDiagram = enforceAiRateLimit(user.id, "diagram-ai");
+  if (!limitedDiagram.ok) return { error: limitedDiagram.error };
 
   const ctx = await getProjectForStudio(projectId);
   if (!ctx) return { error: "Project not found" };

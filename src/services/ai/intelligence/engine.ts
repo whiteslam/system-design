@@ -1,4 +1,6 @@
 import { getOpenRouterClient, getOpenRouterModel } from "@/lib/ai/openrouter";
+import { formatOpenRouterError } from "@/lib/ai/openrouter-errors";
+import { parseIntelligenceJson } from "@/lib/ai/parse-json";
 import { formatContextForPrompt } from "@/lib/intelligence/context";
 import type { ProjectIntelligenceContext } from "@/types/intelligence";
 
@@ -7,20 +9,37 @@ async function callIntelligenceAI<T>(
   userPrompt: string
 ): Promise<T> {
   const client = getOpenRouterClient();
-  const response = await client.chat.completions.create({
-    model: getOpenRouterModel(),
-    messages: [
-      { role: "system", content: systemPrompt },
-      { role: "user", content: userPrompt },
-    ],
-    temperature: 0.5,
-    max_tokens: 6000,
-    response_format: { type: "json_object" },
-  });
+  const messages = [
+    { role: "system" as const, content: systemPrompt },
+    { role: "user" as const, content: userPrompt },
+  ];
 
-  const raw = response.choices[0]?.message?.content;
+  let raw: string | null | undefined;
+  try {
+    const response = await client.chat.completions.create({
+      model: getOpenRouterModel(),
+      messages,
+      temperature: 0.5,
+      max_tokens: 6000,
+      response_format: { type: "json_object" },
+    });
+    raw = response.choices[0]?.message?.content;
+  } catch (firstErr) {
+    try {
+      const response = await client.chat.completions.create({
+        model: getOpenRouterModel(),
+        messages,
+        temperature: 0.5,
+        max_tokens: 6000,
+      });
+      raw = response.choices[0]?.message?.content;
+    } catch {
+      throw new Error(formatOpenRouterError(firstErr));
+    }
+  }
+
   if (!raw) throw new Error("No AI response");
-  return JSON.parse(raw) as T;
+  return parseIntelligenceJson<T>(raw);
 }
 
 const ENGINEER_PERSONA = `You are a Principal Engineer, Cloud Architect, SRE, DevOps Lead, and Security Consultant combined. Be specific, cite the actual architecture, explain tradeoffs, avoid generic advice. Output valid JSON only.`;
@@ -86,6 +105,9 @@ export async function generateTrafficSimulation(
   ctx: ProjectIntelligenceContext,
   concurrentUsers: number
 ) {
+  const serviceList =
+    ctx.diagram?.nodes.map((n) => n.label).join(", ") ?? "infer from blueprint";
+
   return callIntelligenceAI<{
     services: {
       serviceId: string;
@@ -94,14 +116,44 @@ export async function generateTrafficSimulation(
       memory: number;
       dbLoad?: number;
       queuePressure?: number;
-      networkMbps?: number;
       status: string;
     }[];
     bottlenecks: string[];
     summary: string;
+    accuracy_rate?: number;
   }>(
     ENGINEER_PERSONA,
-    `Simulate ${concurrentUsers} concurrent users. Context:\n${formatContextForPrompt(ctx)}\n\nReturn per-service metrics 0-100, status healthy|warning|critical, bottlenecks[], summary.`
+    `Simulate exactly ${concurrentUsers} concurrent users against this architecture.
+
+Context:
+${formatContextForPrompt(ctx)}
+
+Services to simulate (use these exact names): ${serviceList}
+
+Return ONLY valid JSON with this exact shape (no markdown):
+{
+  "services": [
+    {
+      "serviceId": "kebab-id",
+      "serviceName": "Exact Service Name",
+      "cpu": 45,
+      "memory": 38,
+      "dbLoad": 0,
+      "queuePressure": 0,
+      "status": "healthy"
+    }
+  ],
+  "bottlenecks": ["string"],
+  "summary": "one paragraph",
+  "accuracy_rate": 88
+}
+
+Rules:
+- "services" MUST be a JSON array (not an object).
+- Include every listed service; cpu and memory MUST be integers 1-100 (never 0 unless service is idle).
+- Scale load with ${concurrentUsers} users (higher users = higher cpu/memory on hot paths).
+- status must be "healthy", "warning", or "critical".
+- accuracy_rate: your confidence 75-98 that this simulation matches the architecture.`
   );
 }
 

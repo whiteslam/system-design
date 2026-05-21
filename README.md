@@ -104,6 +104,12 @@ Or run everything at once: `supabase/schema-complete.sql`
 **Supabase setup (add after Phase 1 & 2):**
 3. `supabase/schema-phase3.sql` — intelligence tables (reports, costs, simulations, deployment configs)
 
+## Production deploy
+
+See **[DEPLOYMENT.md](./DEPLOYMENT.md)** for the full checklist, Vercel + Supabase setup, env vars, security, and smoke tests.
+
+Quick health check after deploy: `GET https://your-domain.com/api/health`
+
 ## Deploy
 
-Deploy to [Vercel](https://vercel.com) and add environment variables in project settings.
+Deploy to [Vercel](https://vercel.com) and add environment variables from `.env.example`.

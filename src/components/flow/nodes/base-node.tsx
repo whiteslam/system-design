@@ -32,8 +32,7 @@ function BaseNodeComponent({
         selected
           ? "border-primary shadow-primary/20 ring-2 ring-primary/30"
           : "border-border/60",
-        STATUS_COLORS[status],
-        selected && "animate-pulse-slow"
+        STATUS_COLORS[status]
       )}
       style={{
         boxShadow: selected ? `0 0 24px ${accent}40` : undefined,

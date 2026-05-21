@@ -71,7 +71,7 @@ export function DevOpsPanel({
           value={configType}
           onValueChange={(v) => setConfigType(v as DeploymentConfigType)}
         >
-          <SelectTrigger className="w-[200px]">
+          <SelectTrigger className="w-full min-w-0 sm:w-[200px]">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>

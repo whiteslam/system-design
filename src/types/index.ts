@@ -100,4 +100,5 @@ export type BlueprintSection =
   | "security"
   | "deployment"
   | "scaling"
-  | "stack";
+  | "stack"
+  | "prompt";

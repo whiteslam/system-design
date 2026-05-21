@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Logo } from "@/components/brand/Logo";
-import { motion } from "framer-motion";
 import {
   LayoutDashboard,
   FolderKanban,
@@ -59,21 +58,14 @@ export function Sidebar() {
               href={item.href}
               onClick={() => setMobileOpen(false)}
               className={cn(
-                "relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
+                "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors duration-150",
                 isActive
-                  ? "text-foreground"
+                  ? "border border-primary/20 bg-primary/10 text-foreground"
                   : "text-muted-foreground hover:bg-accent hover:text-foreground"
               )}
             >
-              {isActive && (
-                <motion.div
-                  layoutId="sidebar-active"
-                  className="absolute inset-0 rounded-xl bg-primary/10 border border-primary/20"
-                  transition={{ type: "spring", bounce: 0.2, duration: 0.4 }}
-                />
-              )}
-              <item.icon className="relative h-4 w-4" />
-              <span className="relative">{item.label}</span>
+              <item.icon className="h-4 w-4 shrink-0" />
+              <span>{item.label}</span>
             </Link>
           );
         })}
@@ -90,21 +82,14 @@ export function Sidebar() {
               href={item.href}
               onClick={() => setMobileOpen(false)}
               className={cn(
-                "relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
+                "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors duration-150",
                 isActive
-                  ? "text-foreground"
+                  ? "border border-primary/20 bg-primary/10 text-foreground"
                   : "text-muted-foreground hover:bg-accent hover:text-foreground"
               )}
             >
-              {isActive && (
-                <motion.div
-                  layoutId="sidebar-intelligence-active"
-                  className="absolute inset-0 rounded-xl bg-primary/10 border border-primary/20"
-                  transition={{ type: "spring", bounce: 0.2, duration: 0.4 }}
-                />
-              )}
-              <item.icon className="relative h-4 w-4" />
-              <span className="relative">{item.label}</span>
+              <item.icon className="h-4 w-4 shrink-0" />
+              <span>{item.label}</span>
             </Link>
           );
         })}
@@ -126,7 +111,7 @@ export function Sidebar() {
     <>
       <button
         type="button"
-        className="fixed left-4 top-4 z-50 rounded-xl border border-border bg-card p-2 lg:hidden"
+        className="fixed left-4 top-4 z-50 rounded-xl border border-border bg-card p-2 safe-top lg:hidden"
         onClick={() => setMobileOpen(!mobileOpen)}
         aria-label="Toggle sidebar"
       >
@@ -138,14 +123,9 @@ export function Sidebar() {
       </aside>
 
       {mobileOpen && (
-        <motion.aside
-          initial={{ x: -280 }}
-          animate={{ x: 0 }}
-          exit={{ x: -280 }}
-          className="fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r border-border bg-card p-6 lg:hidden"
-        >
+        <aside className="fixed inset-y-0 left-0 z-40 flex w-[min(16rem,85vw)] animate-in slide-in-from-left flex-col border-r border-border bg-card p-4 duration-200 safe-top safe-bottom sm:p-6 lg:hidden">
           <NavContent />
-        </motion.aside>
+        </aside>
       )}
       {mobileOpen && (
         <div

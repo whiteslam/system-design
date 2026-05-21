@@ -11,12 +11,12 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="relative flex min-h-screen">
+    <div className="relative flex min-h-screen-safe">
       <AnimatedBackground />
       <Sidebar />
-      <main className="flex-1 overflow-auto lg:pl-0 pl-0 pt-16 lg:pt-0">
+      <main className="relative z-[1] min-w-0 flex-1 overflow-y-auto pt-14 safe-top lg:pt-0">
         <PageTransition>
-          <div className="mx-auto max-w-6xl px-6 py-8 lg:px-10 lg:py-10">
+          <div className="mx-auto max-w-6xl px-4 py-6 safe-x sm:px-6 sm:py-8 lg:px-10 lg:py-10">
             {children}
           </div>
         </PageTransition>

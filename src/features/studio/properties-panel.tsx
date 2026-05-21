@@ -1,6 +1,7 @@
 "use client";
 
 import { useStudioStore } from "@/store/studio-store";
+import { useSelectedStudioNode } from "@/lib/store/studio-selectors";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -12,23 +13,46 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
+import { X } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-export function PropertiesPanel() {
-  const nodes = useStudioStore((s) => s.nodes);
-  const selectedNodeId = useStudioStore((s) => s.selectedNodeId);
+interface PropertiesPanelProps {
+  className?: string;
+  onClose?: () => void;
+}
+
+export function PropertiesPanel({ className, onClose }: PropertiesPanelProps) {
+  const node = useSelectedStudioNode();
   const updateNodeData = useStudioStore((s) => s.updateNodeData);
   const duplicateNode = useStudioStore((s) => s.duplicateNode);
   const deleteSelected = useStudioStore((s) => s.deleteSelected);
 
-  const node = nodes.find((n) => n.id === selectedNodeId);
-
   return (
-    <aside className="flex h-full w-72 shrink-0 flex-col border-l border-border/50 bg-card/40 backdrop-blur-xl">
+    <aside
+      className={cn(
+        "flex h-full w-72 shrink-0 flex-col border-l border-border/50 bg-card/80 backdrop-blur-xl",
+        className
+      )}
+    >
       <div className="border-b border-border/50 p-4">
-        <h2 className="text-sm font-semibold">Properties</h2>
-        <p className="mt-0.5 text-xs text-muted-foreground">
-          {node ? "Edit selected node" : "Select a node on the canvas"}
-        </p>
+        <div className="flex items-start justify-between gap-2">
+          <div>
+            <h2 className="text-sm font-semibold">Properties</h2>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              {node ? "Edit selected node" : "Select a node on the canvas"}
+            </p>
+          </div>
+          {onClose && (
+            <button
+              type="button"
+              onClick={onClose}
+              className="shrink-0 rounded-lg p-1 text-muted-foreground hover:bg-accent hover:text-foreground lg:hidden"
+              aria-label="Close properties panel"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
       </div>
 
       {!node ? (

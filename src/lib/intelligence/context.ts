@@ -13,7 +13,9 @@ export async function buildProjectIntelligenceContext(
 
   const { data: project } = await supabase
     .from("projects")
-    .select("*")
+    .select(
+      "id, name, description, features, expected_users, budget, preferred_stack, scale"
+    )
     .eq("id", projectId)
     .eq("user_id", user.id)
     .single();

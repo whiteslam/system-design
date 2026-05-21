@@ -13,6 +13,7 @@ interface TemplatePickerProps {
 export function TemplatePicker({ open, onOpenChange }: TemplatePickerProps) {
   const loadDiagram = useStudioStore((s) => s.loadDiagram);
   const pushHistory = useStudioStore((s) => s.pushHistory);
+  const triggerFitView = useStudioStore((s) => s.triggerFitView);
 
   if (!open) return null;
 
@@ -21,6 +22,7 @@ export function TemplatePicker({ open, onOpenChange }: TemplatePickerProps) {
     if (!template) return;
     pushHistory();
     loadDiagram(template.diagram);
+    triggerFitView();
     onOpenChange(false);
     toast.success(`Applied "${template.name}" template`);
   };

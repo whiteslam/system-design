@@ -12,11 +12,11 @@ const EDGE_STYLES: Record<
   string,
   { stroke: string; animated?: boolean; dash?: string }
 > = {
-  api: { stroke: "#8b5cf6", animated: true },
-  websocket: { stroke: "#22d3ee", animated: true, dash: "5 5" },
-  queue: { stroke: "#f59e0b", animated: true, dash: "8 4" },
+  api: { stroke: "#8b5cf6", animated: false },
+  websocket: { stroke: "#22d3ee", animated: false, dash: "5 5" },
+  queue: { stroke: "#f59e0b", animated: false, dash: "8 4" },
   cdn: { stroke: "#06b6d4", animated: false },
-  database: { stroke: "#336791", animated: true, dash: "4 4" },
+  database: { stroke: "#336791", animated: false, dash: "4 4" },
 };
 
 function AnimatedEdgeComponent({
@@ -52,7 +52,9 @@ function AnimatedEdgeComponent({
           strokeWidth: selected ? 3 : 2,
           strokeDasharray: style.dash,
         }}
-        className={style.animated ? "studio-edge-animated" : undefined}
+        className={
+          style.animated && selected ? "studio-edge-animated" : undefined
+        }
       />
       {data?.label && (
         <EdgeLabelRenderer>

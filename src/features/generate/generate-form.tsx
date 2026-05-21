@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useTransition } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import Link from "next/link";
 import {
   generateBlueprintAction,
   type GenerateActionState,
@@ -26,8 +27,9 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { GeneratingOverlay } from "@/components/shared/generating-overlay";
-import { Sparkles } from "lucide-react";
-import { useActionState } from "react";
+import { useSimulatedProgress } from "@/hooks/use-simulated-progress";
+import { Sparkles, AlertCircle, CheckCircle2 } from "lucide-react";
+import { useActionState, startTransition } from "react";
 
 const initialState: GenerateActionState = {};
 
@@ -39,13 +41,19 @@ const COMPLEXITY_LABELS = [
   "Enterprise",
 ];
 
+type OverlayPhase = "generating" | "success" | "error";
+
 export function GenerateForm() {
   const router = useRouter();
-  const [state, formAction] = useActionState(
+  const [state, formAction, isPending] = useActionState(
     generateBlueprintAction,
     initialState
   );
-  const [isPending, startTransition] = useTransition();
+  const { progress } = useSimulatedProgress(isPending);
+  const [overlayPhase, setOverlayPhase] = useState<OverlayPhase>("generating");
+  const [displayProgress, setDisplayProgress] = useState(0);
+  const [showResultOverlay, setShowResultOverlay] = useState(false);
+  const handledResultRef = useRef<string | null>(null);
 
   const form = useForm({
     resolver: zodResolver(generateSchema),
@@ -83,12 +91,54 @@ export function GenerateForm() {
   const needsAi = watch("needsAi");
 
   useEffect(() => {
-    if (state.error) toast.error(state.error);
+    if (isPending) {
+      setShowResultOverlay(false);
+      setOverlayPhase("generating");
+      setDisplayProgress(0);
+      handledResultRef.current = null;
+      return;
+    }
+
+    setDisplayProgress(progress);
+  }, [isPending, progress]);
+
+  useEffect(() => {
+    if (isPending) return;
+
+    const resultKey = state.blueprintId
+      ? `ok:${state.blueprintId}`
+      : state.error
+        ? `err:${state.error}`
+        : null;
+
+    if (!resultKey || handledResultRef.current === resultKey) return;
+    handledResultRef.current = resultKey;
+
     if (state.blueprintId) {
+      setDisplayProgress(100);
+      setOverlayPhase("success");
+      setShowResultOverlay(true);
       toast.success("Blueprint generated successfully!");
+      return;
+    }
+
+    if (state.error) {
+      setDisplayProgress(100);
+      setOverlayPhase("error");
+      setShowResultOverlay(true);
+      toast.error(state.error);
+    }
+  }, [isPending, state]);
+
+  const dismissResultOverlay = () => {
+    setShowResultOverlay(false);
+  };
+
+  const viewBlueprint = () => {
+    if (state.blueprintId) {
       router.push(`/blueprints/${state.blueprintId}`);
     }
-  }, [state, router]);
+  };
 
   const onSubmit = handleSubmit((data) => {
     const formData = new FormData();
@@ -117,9 +167,58 @@ export function GenerateForm() {
     });
   });
 
+  const overlayOpen = isPending || showResultOverlay;
+  const overlayProgress = isPending ? progress : displayProgress;
+
   return (
-    <>
-      <GeneratingOverlay open={isPending} />
+    <div className="space-y-6">
+      <GeneratingOverlay
+        open={overlayOpen}
+        progress={overlayProgress}
+        phase={isPending ? "generating" : overlayPhase}
+        errorMessage={state.error}
+        onDismiss={showResultOverlay ? dismissResultOverlay : undefined}
+        onViewBlueprint={
+          showResultOverlay && state.blueprintId ? viewBlueprint : undefined
+        }
+      />
+
+      {!isPending && !showResultOverlay && state.error && (
+        <div
+          role="alert"
+          className="flex gap-3 rounded-xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+        >
+          <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" />
+          <div>
+            <p className="font-medium">Generation failed</p>
+            <p className="mt-1 text-destructive/90">{state.error}</p>
+            <p className="mt-2 text-xs text-muted-foreground">
+              Check your{" "}
+              <Link href="/projects" className="text-primary underline">
+                projects
+              </Link>{" "}
+              for failed entries, fix the issue above, and try again.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {!isPending && !showResultOverlay && state.blueprintId && (
+        <div
+          role="status"
+          className="flex gap-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm"
+        >
+          <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-400" />
+          <div>
+            <p className="font-medium text-emerald-400">Blueprint created</p>
+            <Button variant="link" className="h-auto p-0 text-primary" asChild>
+              <Link href={`/blueprints/${state.blueprintId}`}>
+                View your blueprint →
+              </Link>
+            </Button>
+          </div>
+        </div>
+      )}
 
       <form onSubmit={onSubmit} className="space-y-8">
         <Card className="border-border/50 bg-card/30">
@@ -324,10 +423,15 @@ export function GenerateForm() {
                     </Select>
                   )}
                 />
+                {errors.authType && (
+                  <p className="text-xs text-destructive">
+                    {errors.authType.message}
+                  </p>
+                )}
               </div>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-3">
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               <div className="flex items-center justify-between rounded-xl border border-border/50 bg-background/30 px-4 py-3">
                 <Label htmlFor="needsRealtime" className="cursor-pointer">
                   Realtime
@@ -400,9 +504,11 @@ export function GenerateForm() {
           disabled={isPending}
         >
           <Sparkles className="h-4 w-4" />
-          {isPending ? "Generating blueprint..." : "Generate system blueprint"}
+          {isPending
+            ? `Generating… ${progress}%`
+            : "Generate system blueprint"}
         </Button>
       </form>
-    </>
+    </div>
   );
 }

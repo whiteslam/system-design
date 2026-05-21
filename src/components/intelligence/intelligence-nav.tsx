@@ -25,7 +25,7 @@ export function IntelligenceNav({ projectId }: { projectId: string }) {
   const pathname = usePathname();
 
   return (
-    <nav className="flex gap-1 overflow-x-auto rounded-2xl border border-border/50 bg-card/40 p-1 backdrop-blur-sm">
+    <nav className="scrollbar-none flex gap-1 overflow-x-auto rounded-2xl border border-border/50 bg-card/40 p-1 backdrop-blur-sm">
       {MODULES.map((m) => {
         const href = `/${m.slug}/${projectId}`;
         const active = pathname.startsWith(`/${m.slug}`);

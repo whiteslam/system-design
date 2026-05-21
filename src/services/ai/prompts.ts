@@ -39,3 +39,49 @@ Respond ONLY with valid JSON (no markdown code fences) in this exact structure:
 
 Each field must contain detailed, actionable content suitable for a production system. Minimum 300 words per major section.`;
 }
+
+export function buildCombineBlueprintsPrompt(
+  input: GenerateBlueprintInput,
+  drafts: { model: string; content: Record<string, string> }[]
+): string {
+  const draftBlocks = drafts
+    .map(
+      (d, i) =>
+        `### Draft ${i + 1} (model: ${d.model})\n${JSON.stringify(d.content, null, 0)}`
+    )
+    .join("\n\n");
+
+  return `You are the lead system architect. You received ${drafts.length} independent blueprint drafts from different AI models for the same project. Merge them into ONE superior, unified production-grade blueprint.
+
+Rules:
+- Resolve contradictions by choosing the most practical option for the project's scale and budget
+- Combine the best ideas from each draft; do not omit important sections
+- Prefer the user's preferred stack (${input.preferredStack}) unless another choice is clearly better — explain in techStackReasoning
+- Output must be cohesive, not a list of separate drafts
+- Be specific and actionable; use markdown in each JSON field
+
+## Project
+**Name:** ${input.projectName}
+**Description:** ${input.projectDescription}
+**Features:** ${input.features.join(", ")}
+**Expected Users:** ${input.expectedUsers}
+**Budget:** ${input.budget}
+**Deployment:** ${input.deploymentPreference}
+
+## Drafts to merge
+${draftBlocks}
+
+Respond ONLY with valid JSON (no markdown fences) using this exact structure:
+{
+  "overview": "markdown",
+  "architecture": "markdown",
+  "database": "markdown",
+  "apis": "markdown",
+  "security": "markdown",
+  "deployment": "markdown",
+  "scaling": "markdown",
+  "recommendedStack": "markdown",
+  "folderStructure": "markdown",
+  "techStackReasoning": "markdown"
+}`;
+}

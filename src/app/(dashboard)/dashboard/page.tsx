@@ -1,42 +1,18 @@
 import Link from "next/link";
-import { Plus, Sparkles } from "lucide-react";
-import {
-  getBlueprints,
-  getProjects,
-  getDashboardStats,
-} from "@/actions/blueprint";
+import { Plus, Sparkles, FolderKanban } from "lucide-react";
+import { getDashboardPageData } from "@/actions/blueprint";
 import { ProjectCard } from "@/components/dashboard/project-card";
 import { StatsCards } from "@/components/dashboard/stats-cards";
 import { DashboardHeader } from "@/components/layout/dashboard-header";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/shared/empty-state";
-import { FolderKanban } from "lucide-react";
-import { createClient } from "@/lib/supabase/server";
 
 export default async function DashboardPage() {
-  const [blueprints, projects, stats] = await Promise.all([
-    getBlueprints(),
-    getProjects(),
-    getDashboardStats(),
-  ]);
+  const { blueprints, projects, stats, firstName } = await getDashboardPageData();
 
-  const supabase = await createClient();
-  const user = supabase
-    ? (await supabase.auth.getUser()).data.user
-    : null;
-
-  const { data: profile } =
-    user && supabase
-      ? await supabase.from("users").select("full_name").eq("id", user.id).single()
-      : { data: null };
-
-  const firstName =
-    profile?.full_name?.split(" ")[0] ??
-    user?.user_metadata?.full_name?.split(" ")[0] ??
-    "there";
-
-  const recentBlueprints = blueprints.slice(0, 6);
-  const recentProjects = projects.slice(0, 3);
+  const blueprintByProject = new Map(
+    blueprints.map((b) => [b.project_id, b.id])
+  );
 
   return (
     <div className="space-y-10">
@@ -68,7 +44,7 @@ export default async function DashboardPage() {
             View all
           </Link>
         </div>
-        {recentBlueprints.length === 0 ? (
+        {blueprints.length === 0 ? (
           <EmptyState
             icon={Sparkles}
             title="No blueprints yet"
@@ -78,7 +54,7 @@ export default async function DashboardPage() {
           />
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {recentBlueprints.map((bp) => (
+            {blueprints.map((bp) => (
               <ProjectCard
                 key={bp.id}
                 blueprint={bp}
@@ -91,7 +67,7 @@ export default async function DashboardPage() {
 
       <section>
         <h2 className="mb-6 text-lg font-semibold">Recent projects</h2>
-        {recentProjects.length === 0 ? (
+        {projects.length === 0 ? (
           <EmptyState
             icon={FolderKanban}
             title="No projects yet"
@@ -101,12 +77,19 @@ export default async function DashboardPage() {
           />
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {recentProjects.map((project) => (
+            {projects.map((project) => (
               <ProjectCard
                 key={project.id}
                 project={project}
-                href={`/studio/${project.id}`}
+                href={
+                  project.status === "completed" &&
+                  blueprintByProject.has(project.id)
+                    ? `/blueprints/${blueprintByProject.get(project.id)}`
+                    : `/studio/${project.id}`
+                }
                 studioHref={`/studio/${project.id}`}
+                blueprintId={blueprintByProject.get(project.id) ?? null}
+                showActions
               />
             ))}
           </div>

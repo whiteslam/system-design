@@ -189,6 +189,9 @@ export async function generateBlueprintAction(
 
     return { blueprintId: blueprint.id };
   } catch (err) {
+    const message =
+      err instanceof Error ? err.message : "Failed to generate blueprint";
+
     await supabase
       .from("projects")
       .update({ status: "failed" })
@@ -199,19 +202,26 @@ export async function generateBlueprintAction(
         .from("ai_generations")
         .update({
           status: "failed",
-          error_message: err instanceof Error ? err.message : "Unknown error",
+          error_message: message,
         })
         .eq("id", generation.id);
     }
 
-    return {
-      error:
-        err instanceof Error ? err.message : "Failed to generate blueprint",
-    };
+    if (message.includes("OPENROUTER_API_KEY")) {
+      return {
+        error:
+          "AI is not configured. Add OPENROUTER_API_KEY to your .env.local file and restart the server.",
+      };
+    }
+
+    return { error: message };
   }
 }
 
-export async function getBlueprints(): Promise<Blueprint[]> {
+const BLUEPRINT_LIST_SELECT =
+  "id, project_id, title, created_at, projects(name, preferred_stack, scale, status)";
+
+export async function getBlueprints(limit?: number): Promise<Blueprint[]> {
   const supabase = await createClient();
   if (!supabase) return [];
   const {
@@ -220,13 +230,18 @@ export async function getBlueprints(): Promise<Blueprint[]> {
 
   if (!user) return [];
 
-  const { data } = await supabase
+  let query = supabase
     .from("blueprints")
-    .select("*, projects(name, preferred_stack, scale, status)")
+    .select(BLUEPRINT_LIST_SELECT)
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
-  return (data ?? []) as Blueprint[];
+  if (limit != null) {
+    query = query.range(0, limit - 1);
+  }
+
+  const { data } = await query;
+  return (data ?? []) as unknown as Blueprint[];
 }
 
 export async function getBlueprint(id: string) {
@@ -241,7 +256,10 @@ export async function getBlueprint(id: string) {
   return data;
 }
 
-export async function getProjects(): Promise<Project[]> {
+const PROJECT_LIST_SELECT =
+  "id, name, description, status, preferred_stack, scale, expected_users, created_at, updated_at";
+
+export async function getProjects(limit?: number): Promise<Project[]> {
   const supabase = await createClient();
   if (!supabase) return [];
   const {
@@ -250,13 +268,91 @@ export async function getProjects(): Promise<Project[]> {
 
   if (!user) return [];
 
-  const { data } = await supabase
+  let query = supabase
     .from("projects")
-    .select("*")
+    .select(PROJECT_LIST_SELECT)
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
+  if (limit != null) {
+    query = query.range(0, limit - 1);
+  }
+
+  const { data } = await query;
   return (data ?? []) as Project[];
+}
+
+/** Single auth + parallel narrow queries for dashboard */
+export async function getDashboardPageData() {
+  const supabase = await createClient();
+  if (!supabase) {
+    return {
+      blueprints: [] as Blueprint[],
+      projects: [] as Project[],
+      stats: { projects: 0, blueprints: 0, completed: 0 },
+      firstName: "there",
+    };
+  }
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return {
+      blueprints: [] as Blueprint[],
+      projects: [] as Project[],
+      stats: { projects: 0, blueprints: 0, completed: 0 },
+      firstName: "there",
+    };
+  }
+
+  const [blueprintsRes, projectsRes, statsRes, profileRes] = await Promise.all([
+    supabase
+      .from("blueprints")
+      .select(BLUEPRINT_LIST_SELECT)
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .range(0, 5),
+    supabase
+      .from("projects")
+      .select(PROJECT_LIST_SELECT)
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .range(0, 5),
+    getDashboardStats(),
+    supabase.from("users").select("full_name").eq("id", user.id).single(),
+  ]);
+
+  const firstName =
+    profileRes.data?.full_name?.split(" ")[0] ??
+    user.user_metadata?.full_name?.split(" ")[0] ??
+    "there";
+
+  return {
+    blueprints: (blueprintsRes.data ?? []) as unknown as Blueprint[],
+    projects: (projectsRes.data ?? []) as Project[],
+    stats: statsRes,
+    firstName,
+  };
+}
+
+export async function getBlueprintProjectIndex(): Promise<
+  { project_id: string; id: string }[]
+> {
+  const supabase = await createClient();
+  if (!supabase) return [];
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return [];
+
+  const { data } = await supabase
+    .from("blueprints")
+    .select("id, project_id")
+    .eq("user_id", user.id);
+
+  return (data ?? []) as { project_id: string; id: string }[];
 }
 
 export async function getDashboardStats() {

@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -38,30 +37,20 @@ Rate Limit: 100 req/min`,
 
 export function DemoPreview() {
   return (
-    <section id="demo" className="py-24 px-6">
+    <section id="demo" className="px-4 py-16 safe-x sm:px-6 sm:py-24">
       <div className="mx-auto max-w-5xl">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="mb-12 text-center"
-        >
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+        <div className="mb-12 text-center">
+          <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl md:text-4xl">
             See a blueprint in action
           </h2>
           <p className="mt-4 text-muted-foreground">
             Preview the quality of AI-generated system designs
           </p>
-        </motion.div>
+        </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-        >
-          <Card className="overflow-hidden border-border/50 bg-card/40">
-            <CardHeader className="flex flex-row items-center justify-between border-b border-border/50">
-              <div>
+        <Card className="overflow-hidden border-border/50 bg-card/40">
+            <CardHeader className="flex flex-col gap-3 border-b border-border/50 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0">
                 <CardTitle className="text-base">E-Commerce Platform</CardTitle>
                 <p className="mt-1 text-xs text-muted-foreground">
                   Next.js · PostgreSQL · Redis · Vercel
@@ -71,7 +60,7 @@ export function DemoPreview() {
             </CardHeader>
             <CardContent className="p-0">
               <Tabs defaultValue="architecture" className="w-full">
-                <TabsList className="w-full justify-start rounded-none border-b border-border/50 bg-transparent px-6">
+                <TabsList className="scrollbar-none w-full justify-start overflow-x-auto rounded-none border-b border-border/50 bg-transparent px-4 sm:px-6">
                   <TabsTrigger value="architecture">Architecture</TabsTrigger>
                   <TabsTrigger value="database">Database</TabsTrigger>
                   <TabsTrigger value="apis">APIs</TabsTrigger>
@@ -86,7 +75,6 @@ export function DemoPreview() {
               </Tabs>
             </CardContent>
           </Card>
-        </motion.div>
       </div>
     </section>
   );

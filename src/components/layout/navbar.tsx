@@ -17,8 +17,8 @@ export function Navbar() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="fixed top-0 z-50 w-full">
-      <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6 lg:px-8">
+    <header className="fixed top-0 z-50 w-full border-b border-border/40 bg-background/90 backdrop-blur-md safe-top">
+      <nav className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-3 px-4 safe-x sm:h-16 sm:px-6 lg:px-8">
         <Link href="/">
           <Logo />
         </Link>
@@ -60,9 +60,9 @@ export function Navbar() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="glass border-t border-border md:hidden"
+            className="border-t border-border bg-card/95 backdrop-blur-sm md:hidden"
           >
-            <div className="flex flex-col gap-4 px-6 py-6">
+            <div className="flex flex-col gap-4 px-4 py-6 safe-x sm:px-6">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}

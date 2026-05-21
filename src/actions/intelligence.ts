@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { buildProjectIntelligenceContext } from "@/lib/intelligence/context";
+import { normalizeTrafficSimulationResults } from "@/lib/intelligence/normalize-traffic";
 import {
   generateArchitectureAnalysis,
   generateSecurityReport,
@@ -14,9 +15,31 @@ import {
   generateDeploymentConfig,
   answerInfrastructureQuestion,
 } from "@/services/ai/intelligence/engine";
-import type { DeploymentConfigType } from "@/types/intelligence";
+import {
+  fixTrafficSimulationWithAI,
+  getUnhealthyServiceIds,
+} from "@/services/ai/intelligence/fix-traffic-simulation";
+import { enforceAiRateLimit } from "@/lib/security/ai-rate-limit";
+import type {
+  DeploymentConfigType,
+  ServiceLoadMetric,
+  TrafficSimulation,
+} from "@/types/intelligence";
 
-export type ActionResult<T> = { error?: string; data?: T };
+export type ActionResult<T = unknown> = {
+  error?: string;
+  data?: T;
+  filename?: string;
+};
+
+function checkAiRateLimit(
+  userId: string,
+  action: string
+): { error: string } | null {
+  const result = enforceAiRateLimit(userId, action);
+  if (!result.ok) return { error: result.error };
+  return null;
+}
 
 async function getUserProject(projectId: string) {
   const supabase = await createClient();
@@ -56,9 +79,13 @@ export async function getUserProjectsList() {
   return data ?? [];
 }
 
-export async function runArchitectureAnalysis(projectId: string) {
+export async function runArchitectureAnalysis(
+  projectId: string
+): Promise<ActionResult<unknown>> {
   const auth = await getUserProject(projectId);
   if (auth.error || !auth.user) return { error: auth.error ?? "Unauthorized" };
+  const limited = checkAiRateLimit(auth.user.id, "intelligence-analysis");
+  if (limited) return limited;
 
   const ctx = await buildProjectIntelligenceContext(projectId);
   if (!ctx) return { error: "Could not load project context" };
@@ -107,9 +134,13 @@ export async function getLatestArchitectureReport(projectId: string) {
   return data;
 }
 
-export async function runSecurityAnalysis(projectId: string) {
+export async function runSecurityAnalysis(
+  projectId: string
+): Promise<ActionResult<unknown>> {
   const auth = await getUserProject(projectId);
   if (auth.error || !auth.user) return { error: auth.error ?? "Unauthorized" };
+  const limited = checkAiRateLimit(auth.user.id, "intelligence-security");
+  if (limited) return limited;
 
   const ctx = await buildProjectIntelligenceContext(projectId);
   if (!ctx) return { error: "Could not load project context" };
@@ -150,9 +181,14 @@ export async function getLatestSecurityReport(projectId: string) {
   return data;
 }
 
-export async function runCostEstimation(projectId: string, provider: string) {
+export async function runCostEstimation(
+  projectId: string,
+  provider: string
+): Promise<ActionResult<unknown>> {
   const auth = await getUserProject(projectId);
   if (auth.error || !auth.user) return { error: auth.error ?? "Unauthorized" };
+  const limited = checkAiRateLimit(auth.user.id, "intelligence-cost");
+  if (limited) return limited;
 
   const ctx = await buildProjectIntelligenceContext(projectId);
   if (!ctx) return { error: "Could not load project context" };
@@ -198,26 +234,38 @@ export async function getLatestCostEstimation(projectId: string, provider?: stri
 export async function runTrafficSimulation(
   projectId: string,
   concurrentUsers: number
-) {
+): Promise<ActionResult<unknown>> {
   const auth = await getUserProject(projectId);
   if (auth.error || !auth.user) return { error: auth.error ?? "Unauthorized" };
+  const limited = checkAiRateLimit(auth.user.id, "intelligence-simulation");
+  if (limited) return limited;
 
   const ctx = await buildProjectIntelligenceContext(projectId);
   if (!ctx) return { error: "Could not load project context" };
 
   try {
     const result = await generateTrafficSimulation(ctx, concurrentUsers);
+    const diagramServices = ctx.diagram?.nodes.map((n) => n.label) ?? [];
+    const normalized = normalizeTrafficSimulationResults(
+      {
+        services: result.services,
+        summary: result.summary,
+        accuracy_rate: result.accuracy_rate,
+      },
+      { concurrentUsers, diagramServices }
+    );
+    const bottlenecks = Array.isArray(result.bottlenecks)
+      ? result.bottlenecks.map(String)
+      : [];
+
     const { data, error } = await auth.supabase
       .from("traffic_simulations")
       .insert({
         project_id: projectId,
         user_id: auth.user.id,
         concurrent_users: concurrentUsers,
-        bottlenecks: result.bottlenecks,
-        simulation_results: {
-          services: result.services,
-          summary: result.summary,
-        },
+        bottlenecks,
+        simulation_results: normalized,
       })
       .select("*")
       .single();
@@ -227,6 +275,109 @@ export async function runTrafficSimulation(
     return { data };
   } catch (e) {
     return { error: e instanceof Error ? e.message : "Simulation failed" };
+  }
+}
+
+export async function fixTrafficSimulationAction(
+  projectId: string,
+  simulationId: string,
+  serviceId?: string
+): Promise<ActionResult<TrafficSimulation & { fixSummary?: string }>> {
+  const auth = await getUserProject(projectId);
+  if (auth.error || !auth.user) return { error: auth.error ?? "Unauthorized" };
+
+  const { data: row, error: fetchError } = await auth.supabase
+    .from("traffic_simulations")
+    .select("*")
+    .eq("id", simulationId)
+    .eq("project_id", projectId)
+    .eq("user_id", auth.user.id)
+    .single();
+
+  if (fetchError || !row) {
+    return { error: "Simulation not found" };
+  }
+
+  const normalized = normalizeTrafficSimulationResults(row.simulation_results, {
+    concurrentUsers: row.concurrent_users,
+  });
+
+  const unhealthyIds = getUnhealthyServiceIds(normalized.services);
+  if (unhealthyIds.length === 0) {
+    return { error: "All services are already healthy" };
+  }
+
+  const targetIds = serviceId
+    ? normalized.services
+        .filter(
+          (s) => s.serviceId === serviceId || s.serviceName === serviceId
+        )
+        .map((s) => s.serviceId)
+    : unhealthyIds;
+
+  if (serviceId && targetIds.length === 0) {
+    return { error: "Service not found in this simulation" };
+  }
+
+  const limited = checkAiRateLimit(auth.user.id, "intelligence-simulation");
+  if (limited) return limited;
+
+  const ctx = await buildProjectIntelligenceContext(projectId);
+  if (!ctx) return { error: "Could not load project context" };
+
+  const bottlenecks = Array.isArray(row.bottlenecks)
+    ? (row.bottlenecks as string[]).map(String)
+    : [];
+
+  try {
+    const fixed = await fixTrafficSimulationWithAI(
+      ctx,
+      row.concurrent_users,
+      normalized.services,
+      bottlenecks,
+      normalized.summary,
+      targetIds
+    );
+
+    const { data, error } = await auth.supabase
+      .from("traffic_simulations")
+      .update({
+        simulation_results: {
+          services: fixed.services,
+          summary: fixed.summary,
+          accuracyRate: fixed.accuracyRate,
+        },
+        bottlenecks: fixed.services.every(
+          (s: ServiceLoadMetric) =>
+            s.status === "healthy"
+        )
+          ? []
+          : bottlenecks.filter((b) =>
+              targetIds.every(
+                (id) =>
+                  !b
+                    .toLowerCase()
+                    .includes(
+                      normalized.services
+                        .find((s) => s.serviceId === id)
+                        ?.serviceName.toLowerCase() ?? ""
+                    )
+              )
+            ),
+      })
+      .eq("id", simulationId)
+      .select("*")
+      .single();
+
+    if (error) return { error: error.message };
+    revalidatePath(`/simulations/${projectId}`);
+    return {
+      data: { ...(data as TrafficSimulation), fixSummary: fixed.fixSummary },
+    };
+  } catch (e) {
+    return {
+      error: e instanceof Error ? e.message : "Failed to fix simulation",
+    };
   }
 }
 
@@ -243,7 +394,14 @@ export async function getLatestTrafficSimulation(projectId: string) {
   return data;
 }
 
-export async function runScalabilityPlan(projectId: string) {
+export async function runScalabilityPlan(
+  projectId: string
+): Promise<ActionResult<unknown>> {
+  const auth = await getUserProject(projectId);
+  if (auth.error || !auth.user) return { error: auth.error ?? "Unauthorized" };
+  const limited = checkAiRateLimit(auth.user.id, "intelligence-analysis");
+  if (limited) return limited;
+
   const ctx = await buildProjectIntelligenceContext(projectId);
   if (!ctx) return { error: "Could not load project context" };
   try {
@@ -254,7 +412,14 @@ export async function runScalabilityPlan(projectId: string) {
   }
 }
 
-export async function runCloudRecommendation(projectId: string) {
+export async function runCloudRecommendation(
+  projectId: string
+): Promise<ActionResult<unknown>> {
+  const auth = await getUserProject(projectId);
+  if (auth.error || !auth.user) return { error: auth.error ?? "Unauthorized" };
+  const limited = checkAiRateLimit(auth.user.id, "intelligence-analysis");
+  if (limited) return limited;
+
   const ctx = await buildProjectIntelligenceContext(projectId);
   if (!ctx) return { error: "Could not load project context" };
   try {
@@ -265,7 +430,14 @@ export async function runCloudRecommendation(projectId: string) {
   }
 }
 
-export async function runObservabilityPlan(projectId: string) {
+export async function runObservabilityPlan(
+  projectId: string
+): Promise<ActionResult<unknown>> {
+  const auth = await getUserProject(projectId);
+  if (auth.error || !auth.user) return { error: auth.error ?? "Unauthorized" };
+  const limited = checkAiRateLimit(auth.user.id, "intelligence-analysis");
+  if (limited) return limited;
+
   const ctx = await buildProjectIntelligenceContext(projectId);
   if (!ctx) return { error: "Could not load project context" };
   try {
@@ -279,9 +451,11 @@ export async function runObservabilityPlan(projectId: string) {
 export async function runDeploymentConfig(
   projectId: string,
   configType: DeploymentConfigType
-) {
+): Promise<ActionResult<unknown>> {
   const auth = await getUserProject(projectId);
   if (auth.error || !auth.user) return { error: auth.error ?? "Unauthorized" };
+  const limited = checkAiRateLimit(auth.user.id, "intelligence-devops");
+  if (limited) return limited;
 
   const ctx = await buildProjectIntelligenceContext(projectId);
   if (!ctx) return { error: "Could not load project context" };
@@ -321,9 +495,11 @@ export async function getDeploymentConfigs(projectId: string) {
 export async function askInfrastructureChat(
   projectId: string,
   question: string
-) {
+): Promise<ActionResult<string>> {
   const auth = await getUserProject(projectId);
-  if (auth.error) return { error: auth.error };
+  if (auth.error || !auth.user) return { error: auth.error ?? "Unauthorized" };
+  const limited = checkAiRateLimit(auth.user.id, "intelligence-chat");
+  if (limited) return limited;
 
   const ctx = await buildProjectIntelligenceContext(projectId);
   if (!ctx) return { error: "Could not load project context" };

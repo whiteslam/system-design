@@ -3,7 +3,8 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Fuse from "fuse.js";
-import { Search, ChevronDown } from "lucide-react";
+import { Search, ChevronDown, X } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import {
   CATEGORIES,
@@ -11,9 +12,11 @@ import {
   getComponentsByCategory,
   type CatalogComponent,
 } from "@/lib/diagram/component-catalog";
-import { cn } from "@/lib/utils";
+import { useStudioStore } from "@/store/studio-store";
 
 function DraggableComponent({ item }: { item: CatalogComponent }) {
+  const addComponentAtCenter = useStudioStore((s) => s.addComponentAtCenter);
+
   const onDragStart = (e: React.DragEvent) => {
     e.dataTransfer.setData(
       "application/archflow-component",
@@ -28,12 +31,31 @@ function DraggableComponent({ item }: { item: CatalogComponent }) {
     e.dataTransfer.effectAllowed = "move";
   };
 
+  const addToCanvas = () => {
+    addComponentAtCenter({
+      id: item.id,
+      label: item.label,
+      type: item.type,
+      color: item.color,
+      description: item.description,
+    });
+  };
+
   return (
     <div
       draggable
       onDragStart={onDragStart}
-      title={item.description}
-      className="flex cursor-grab items-center gap-2 rounded-xl border border-border/40 bg-background/40 px-3 py-2 transition-all hover:border-primary/40 hover:bg-primary/5 active:cursor-grabbing"
+      onClick={addToCanvas}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          addToCanvas();
+        }
+      }}
+      role="button"
+      tabIndex={0}
+      title={`${item.description} — click or drag to canvas`}
+      className="flex cursor-grab items-center gap-2 rounded-xl border border-border/40 bg-secondary/40 px-3 py-2 transition-all hover:border-primary/40 hover:bg-primary/10 active:cursor-grabbing"
     >
       <span
         className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-sm font-bold"
@@ -46,7 +68,12 @@ function DraggableComponent({ item }: { item: CatalogComponent }) {
   );
 }
 
-export function ComponentPalette() {
+interface ComponentPaletteProps {
+  className?: string;
+  onClose?: () => void;
+}
+
+export function ComponentPalette({ className, onClose }: ComponentPaletteProps) {
   const [query, setQuery] = useState("");
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
 
@@ -67,9 +94,26 @@ export function ComponentPalette() {
     setCollapsed((prev) => ({ ...prev, [cat]: !prev[cat] }));
 
   return (
-    <aside className="flex h-full w-64 shrink-0 flex-col border-r border-border/50 bg-card/40 backdrop-blur-xl">
+    <aside
+      className={cn(
+        "flex h-full w-64 shrink-0 flex-col border-r border-border/50 bg-card/80 backdrop-blur-xl",
+        className
+      )}
+    >
       <div className="border-b border-border/50 p-4">
-        <h2 className="mb-3 text-sm font-semibold">Components</h2>
+        <div className="mb-3 flex items-center justify-between gap-2">
+          <h2 className="text-sm font-semibold">Components</h2>
+          {onClose && (
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-lg p-1 text-muted-foreground hover:bg-accent hover:text-foreground lg:hidden"
+              aria-label="Close components panel"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
         <div className="relative">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input

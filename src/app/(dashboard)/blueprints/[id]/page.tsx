@@ -32,14 +32,14 @@ export default async function BlueprintPage({ params }: BlueprintPageProps) {
         </Link>
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">
+            <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
               {blueprint.title}
             </h1>
             <p className="mt-1 text-muted-foreground">
               Generated {formatDate(blueprint.created_at)}
             </p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:gap-3">
             <Button variant="outline" size="sm" asChild>
               <Link href={`/studio/${blueprint.project_id}`}>
                 Open Studio

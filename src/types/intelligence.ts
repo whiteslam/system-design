@@ -88,6 +88,7 @@ export interface TrafficSimulation {
   simulation_results: {
     services: ServiceLoadMetric[];
     summary: string;
+    accuracyRate?: number;
   };
   created_at: string;
 }

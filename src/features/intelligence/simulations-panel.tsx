@@ -2,12 +2,16 @@
 
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
-import { runTrafficSimulation } from "@/actions/intelligence";
+import {
+  fixTrafficSimulationAction,
+  runTrafficSimulation,
+} from "@/actions/intelligence";
 import { TrafficSimulationView } from "@/components/intelligence/traffic-simulation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Loader2, Zap } from "lucide-react";
-import type { TrafficSimulation, ServiceLoadMetric } from "@/types/intelligence";
+import type { TrafficSimulation } from "@/types/intelligence";
+import { normalizeTrafficSimulationResults } from "@/lib/intelligence/normalize-traffic";
 
 const PRESETS = [
   { label: "1K users", users: 1000 },
@@ -25,6 +29,8 @@ export function SimulationsPanel({
 }) {
   const [simulation, setSimulation] = useState(initialSimulation);
   const [pending, startTransition] = useTransition();
+  const [fixPending, startFixTransition] = useTransition();
+  const [fixingServiceId, setFixingServiceId] = useState<string | null>(null);
 
   const run = (users: number) => {
     startTransition(async () => {
@@ -37,9 +43,37 @@ export function SimulationsPanel({
     });
   };
 
-  const results = simulation?.simulation_results as
-    | { services: ServiceLoadMetric[]; summary: string }
-    | undefined;
+  const handleFix = (serviceId?: string) => {
+    if (!simulation?.id) return;
+
+    setFixingServiceId(serviceId ?? "all");
+    startFixTransition(async () => {
+      const result = await fixTrafficSimulationAction(
+        projectId,
+        simulation.id,
+        serviceId
+      );
+
+      setFixingServiceId(null);
+
+      if (result.error) {
+        toast.error(result.error);
+        return;
+      }
+
+      if (result.data) {
+        const { fixSummary, ...updated } = result.data;
+        setSimulation(updated as TrafficSimulation);
+        toast.success(fixSummary ?? "Service remediated");
+      }
+    });
+  };
+
+  const results = simulation
+    ? normalizeTrafficSimulationResults(simulation.simulation_results, {
+        concurrentUsers: simulation.concurrent_users,
+      })
+    : { services: [], summary: "", accuracyRate: 0 };
 
   return (
     <div className="space-y-8">
@@ -48,10 +82,14 @@ export function SimulationsPanel({
           <Button
             key={p.users}
             variant="outline"
-            disabled={pending}
+            disabled={pending || fixPending}
             onClick={() => run(p.users)}
           >
-            {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Zap className="h-4 w-4" />}
+            {pending ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Zap className="h-4 w-4" />
+            )}
             {p.label}
           </Button>
         ))}
@@ -63,10 +101,20 @@ export function SimulationsPanel({
         </Card>
       ) : (
         <TrafficSimulationView
-          services={results?.services ?? []}
+          services={results.services}
           concurrentUsers={simulation.concurrent_users}
-          summary={results?.summary}
-          bottlenecks={simulation.bottlenecks as string[]}
+          summary={results.summary}
+          accuracyRate={results.accuracyRate}
+          bottlenecks={
+            Array.isArray(simulation.bottlenecks)
+              ? simulation.bottlenecks.map(String)
+              : []
+          }
+          onFixService={(id) => handleFix(id)}
+          onFixAllUnhealthy={() => handleFix()}
+          fixingServiceId={fixingServiceId}
+          isFixingAll={fixingServiceId === "all"}
+          isFixPending={fixPending}
         />
       )}
     </div>

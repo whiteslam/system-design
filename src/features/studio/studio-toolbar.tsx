@@ -12,6 +12,8 @@ import {
   Grid3X3,
   ArrowLeft,
   Loader2,
+  PanelLeft,
+  PanelRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,8 +23,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useStudioStore } from "@/store/studio-store";
+import { useStudioHistoryFlags } from "@/lib/store/studio-selectors";
 import { generateArchitectureDiagramAction } from "@/actions/diagram";
-import { applyAutoLayout } from "@/lib/diagram/layout";
 import {
   exportCanvasAsPng,
   exportCanvasAsSvg,
@@ -31,26 +33,35 @@ import {
   exportDiagramMarkdown,
 } from "@/lib/diagram/export";
 import { TemplatePicker } from "./template-picker";
+import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+
+type MobilePanel = "components" | "properties" | null;
 
 interface StudioToolbarProps {
   projectId: string;
   projectName: string;
+  mobilePanel?: MobilePanel;
+  onMobilePanelChange?: (panel: MobilePanel) => void;
 }
 
-export function StudioToolbar({ projectId, projectName }: StudioToolbarProps) {
+export function StudioToolbar({
+  projectId,
+  projectName,
+  mobilePanel = null,
+  onMobilePanelChange,
+}: StudioToolbarProps) {
   const [templateOpen, setTemplateOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   const title = useStudioStore((s) => s.title);
+  const setTitle = useStudioStore((s) => s.setTitle);
+  const triggerFitView = useStudioStore((s) => s.triggerFitView);
   const saveStatus = useStudioStore((s) => s.saveStatus);
   const projectIdStore = useStudioStore((s) => s.projectId);
-  const nodes = useStudioStore((s) => s.nodes);
-  const edges = useStudioStore((s) => s.edges);
+  const { canUndo, canRedo } = useStudioHistoryFlags();
   const undo = useStudioStore((s) => s.undo);
   const redo = useStudioStore((s) => s.redo);
-  const canUndo = useStudioStore((s) => s.canUndo);
-  const canRedo = useStudioStore((s) => s.canRedo);
   const loadDiagram = useStudioStore((s) => s.loadDiagram);
   const pushHistory = useStudioStore((s) => s.pushHistory);
   const initStudio = useStudioStore((s) => s.initStudio);
@@ -73,22 +84,26 @@ export function StudioToolbar({ projectId, projectName }: StudioToolbarProps) {
           healthWarnings: result.healthWarnings,
         });
         toast.success("Architecture generated from AI");
+        triggerFitView();
       }
     });
   };
 
-  const handleAutoLayout = () => {
+  const handleAutoLayout = async () => {
+    const { nodes, edges } = useStudioStore.getState();
+    const { applyAutoLayout } = await import("@/lib/diagram/layout");
     pushHistory();
     loadDiagram({
       nodes: applyAutoLayout(nodes, edges),
       edges,
       viewport: { x: 0, y: 0, zoom: 1 },
     });
+    triggerFitView();
     toast.success("Auto layout applied");
   };
 
   const handleExport = async (type: string) => {
-    const el = document.querySelector(".studio-flow") as HTMLElement | null;
+    const el = document.getElementById("studio-canvas") as HTMLElement | null;
     const diagram = getDiagramJson();
     try {
       switch (type) {
@@ -116,24 +131,61 @@ export function StudioToolbar({ projectId, projectName }: StudioToolbarProps) {
 
   return (
     <>
-      <header className="flex h-14 shrink-0 items-center justify-between border-b border-border/50 bg-card/60 px-4 backdrop-blur-xl">
-        <div className="flex items-center gap-3">
-          <Button variant="ghost" size="sm" asChild>
+      <header className="flex h-auto min-h-14 shrink-0 flex-col gap-2 border-b border-border/50 bg-card/90 px-3 py-2 backdrop-blur-xl safe-top sm:flex-row sm:items-center sm:justify-between sm:gap-3 sm:px-4 sm:py-0">
+        <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+          <Button variant="ghost" size="icon" className="shrink-0" asChild>
             <Link href={`/projects`}>
               <ArrowLeft className="h-4 w-4" />
             </Link>
           </Button>
-          <div>
-            <p className="text-sm font-semibold leading-none">{title}</p>
-            <p className="mt-0.5 text-xs text-muted-foreground">{projectName}</p>
+          {onMobilePanelChange && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="shrink-0 lg:hidden"
+              onClick={() =>
+                onMobilePanelChange(
+                  mobilePanel === "components" ? null : "components"
+                )
+              }
+              aria-label="Toggle components"
+            >
+              <PanelLeft className="h-4 w-4" />
+            </Button>
+          )}
+          <div className="min-w-0 flex-1">
+            <Input
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="h-8 border-transparent bg-transparent px-0 text-sm font-semibold shadow-none focus-visible:border-border focus-visible:bg-background/50"
+              aria-label="Diagram title"
+            />
+            <p className="mt-0.5 truncate text-xs text-muted-foreground">
+              {projectName}
+            </p>
           </div>
+          {onMobilePanelChange && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="shrink-0 lg:hidden"
+              onClick={() =>
+                onMobilePanelChange(
+                  mobilePanel === "properties" ? null : "properties"
+                )
+              }
+              aria-label="Toggle properties"
+            >
+              <PanelRight className="h-4 w-4" />
+            </Button>
+          )}
         </div>
 
-        <div className="flex items-center gap-1">
+        <div className="scrollbar-none flex items-center gap-1 overflow-x-auto pb-0.5 sm:pb-0">
           <Button
             variant="ghost"
             size="icon"
-            disabled={!canUndo()}
+            disabled={!canUndo}
             onClick={undo}
             title="Undo (Ctrl+Z)"
           >
@@ -142,7 +194,7 @@ export function StudioToolbar({ projectId, projectName }: StudioToolbarProps) {
           <Button
             variant="ghost"
             size="icon"
-            disabled={!canRedo()}
+            disabled={!canRedo}
             onClick={redo}
             title="Redo (Ctrl+Shift+Z)"
           >
@@ -159,16 +211,17 @@ export function StudioToolbar({ projectId, projectName }: StudioToolbarProps) {
           <Button
             variant="ghost"
             size="sm"
+            className="shrink-0"
             onClick={() => setTemplateOpen(true)}
           >
             <LayoutTemplate className="h-4 w-4" />
-            Templates
+            <span className="hidden sm:inline">Templates</span>
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" className="shrink-0">
                 <Download className="h-4 w-4" />
-                Export
+                <span className="hidden sm:inline">Export</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-40">
@@ -182,6 +235,7 @@ export function StudioToolbar({ projectId, projectName }: StudioToolbarProps) {
           <Button
             variant="gradient"
             size="sm"
+            className="shrink-0"
             onClick={handleGenerate}
             disabled={isPending}
           >
@@ -190,23 +244,22 @@ export function StudioToolbar({ projectId, projectName }: StudioToolbarProps) {
             ) : (
               <Sparkles className="h-4 w-4" />
             )}
-            Generate Architecture
+            <span className="hidden md:inline">Generate Architecture</span>
+            <span className="md:hidden">Generate</span>
           </Button>
+          <span
+            className={cn(
+              "shrink-0 px-1 text-xs font-medium",
+              saveStatus === "saved" && "text-emerald-400",
+              saveStatus === "saving" && "text-amber-400",
+              saveStatus === "error" && "text-destructive"
+            )}
+          >
+            {saveStatus === "saving" && "Saving..."}
+            {saveStatus === "saved" && "Saved"}
+            {saveStatus === "error" && "Save failed"}
+          </span>
         </div>
-
-        <span
-          className={cn(
-            "text-xs font-medium",
-            saveStatus === "saved" && "text-emerald-400",
-            saveStatus === "saving" && "text-amber-400",
-            saveStatus === "error" && "text-destructive"
-          )}
-        >
-          {saveStatus === "saving" && "Saving..."}
-          {saveStatus === "saved" && "Saved"}
-          {saveStatus === "error" && "Save failed"}
-          {saveStatus === "idle" && ""}
-        </span>
       </header>
 
       <TemplatePicker open={templateOpen} onOpenChange={setTemplateOpen} />

@@ -47,13 +47,13 @@ export function ProjectPicker({
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-3">
-      <span className="text-sm text-muted-foreground">Project:</span>
+    <div className="flex w-full flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
+      <span className="shrink-0 text-sm text-muted-foreground">Project:</span>
       <Select
         value={selected}
         onValueChange={(id) => router.push(`${basePath}/${id}`)}
       >
-        <SelectTrigger className="w-[220px]">
+        <SelectTrigger className="w-full min-w-0 sm:w-[220px]">
           <SelectValue placeholder="Select project" />
         </SelectTrigger>
         <SelectContent>

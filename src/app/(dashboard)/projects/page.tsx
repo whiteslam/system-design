@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Plus } from "lucide-react";
-import { getProjects, getBlueprints } from "@/actions/blueprint";
+import { getProjects, getBlueprintProjectIndex } from "@/actions/blueprint";
 import { ProjectCard } from "@/components/dashboard/project-card";
 import { DashboardHeader } from "@/components/layout/dashboard-header";
 import { Button } from "@/components/ui/button";
@@ -8,13 +8,13 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { FolderKanban } from "lucide-react";
 
 export default async function ProjectsPage() {
-  const [projects, blueprints] = await Promise.all([
+  const [projects, blueprintIndex] = await Promise.all([
     getProjects(),
-    getBlueprints(),
+    getBlueprintProjectIndex(),
   ]);
 
   const blueprintByProject = new Map(
-    blueprints.map((b) => [b.project_id, b])
+    blueprintIndex.map((b) => [b.project_id, b.id])
   );
 
   return (
@@ -42,12 +42,19 @@ export default async function ProjectsPage() {
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {projects.map((project) => {
+            const blueprintId = blueprintByProject.get(project.id);
             return (
               <ProjectCard
                 key={project.id}
                 project={project}
-                href={`/studio/${project.id}`}
+                href={
+                  project.status === "completed" && blueprintId
+                    ? `/blueprints/${blueprintId}`
+                    : `/studio/${project.id}`
+                }
                 studioHref={`/studio/${project.id}`}
+                blueprintId={blueprintId ?? null}
+                showActions
               />
             );
           })}

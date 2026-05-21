@@ -47,7 +47,7 @@ export function CostsPanel({
     <div className="space-y-8">
       <div className="flex flex-wrap items-center gap-3">
         <Select value={provider} onValueChange={setProvider}>
-          <SelectTrigger className="w-[160px]">
+          <SelectTrigger className="w-full min-w-0 sm:w-[160px]">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>

@@ -8,10 +8,15 @@ export async function exportCanvasAsPng(
 ) {
   const dataUrl = await toPng(element, {
     pixelRatio: 3,
-    backgroundColor: "#030712",
+    backgroundColor: "#0f172a",
     filter: (node) => {
       if (node instanceof HTMLElement) {
-        return !node.classList?.contains("react-flow__minimap");
+        const cls = node.classList;
+        return (
+          !cls?.contains("react-flow__minimap") &&
+          !cls?.contains("studio-controls") &&
+          !cls?.contains("react-flow__controls")
+        );
       }
       return true;
     },
@@ -24,7 +29,7 @@ export async function exportCanvasAsSvg(
   filename = "architecture.svg"
 ) {
   const dataUrl = await toSvg(element, {
-    backgroundColor: "#030712",
+    backgroundColor: "#0f172a",
   });
   downloadDataUrl(dataUrl, filename);
 }
@@ -68,7 +73,7 @@ export async function exportCanvasAsPdf(
 ) {
   const dataUrl = await toPng(element, {
     pixelRatio: 2,
-    backgroundColor: "#030712",
+    backgroundColor: "#0f172a",
   });
   const pdf = new jsPDF({ orientation: "landscape", unit: "px" });
   const width = pdf.internal.pageSize.getWidth();

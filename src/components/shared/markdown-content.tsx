@@ -15,7 +15,7 @@ export function MarkdownContent({ content, className }: MarkdownContentProps) {
   return (
     <div
       className={cn(
-        "prose prose-invert prose-sm max-w-none prose-headings:font-semibold prose-headings:text-foreground prose-p:text-muted-foreground prose-a:text-primary prose-code:rounded-md prose-code:bg-muted/50 prose-code:px-1.5 prose-code:py-0.5 prose-code:text-primary prose-pre:bg-muted/30 prose-pre:border prose-pre:border-border",
+        "prose prose-invert prose-sm max-w-none break-words prose-headings:font-semibold prose-headings:text-foreground prose-p:text-muted-foreground prose-a:text-primary prose-code:rounded-md prose-code:bg-muted/50 prose-code:px-1.5 prose-code:py-0.5 prose-code:text-primary prose-pre:overflow-x-auto prose-pre:bg-muted/30 prose-pre:border prose-pre:border-border",
         className
       )}
     >

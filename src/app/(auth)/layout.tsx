@@ -6,9 +6,9 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="relative flex min-h-screen items-center justify-center px-6 py-12">
+    <div className="relative flex min-h-screen-safe items-center justify-center px-4 py-10 safe-x sm:px-6 sm:py-12">
       <AnimatedBackground />
-      {children}
+      <div className="relative z-[1] w-full max-w-md">{children}</div>
     </div>
   );
 }
