@@ -35,6 +35,7 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
+  const isAuthCallback = request.nextUrl.pathname.startsWith("/auth/callback");
   const isAuthPage =
     request.nextUrl.pathname.startsWith("/login") ||
     request.nextUrl.pathname.startsWith("/signup");
@@ -57,6 +58,10 @@ export async function updateSession(request: NextRequest) {
     url.pathname = "/login";
     url.searchParams.set("redirect", request.nextUrl.pathname);
     return NextResponse.redirect(url);
+  }
+
+  if (isAuthCallback) {
+    return supabaseResponse;
   }
 
   if (user && isAuthPage) {

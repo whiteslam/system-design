@@ -3,6 +3,8 @@
 import { useActionState } from "react";
 import Link from "next/link";
 import { signupAction, type AuthActionState } from "@/actions/auth";
+import { AuthDivider } from "@/features/auth/auth-divider";
+import { GoogleSignInButton } from "@/features/auth/google-sign-in-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
@@ -21,6 +23,8 @@ export function SignupForm() {
         <CardDescription>Start designing systems with AI</CardDescription>
       </CardHeader>
       <CardContent>
+        <GoogleSignInButton label="Sign up with Google" />
+        <AuthDivider />
         <form action={formAction} className="space-y-4">
           {state.error && (
             <p className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">

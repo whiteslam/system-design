@@ -3,6 +3,9 @@
 import { useActionState } from "react";
 import Link from "next/link";
 import { loginAction, type AuthActionState } from "@/actions/auth";
+import { AuthDivider } from "@/features/auth/auth-divider";
+import { GoogleSignInButton } from "@/features/auth/google-sign-in-button";
+import { getAuthErrorMessage } from "@/lib/auth-errors";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
@@ -11,8 +14,19 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 
 const initialState: AuthActionState = {};
 
-export function LoginForm() {
+interface LoginFormProps {
+  redirectTo?: string;
+  authError?: string | null;
+  authErrorDetail?: string | null;
+}
+
+export function LoginForm({
+  redirectTo = "/dashboard",
+  authError,
+  authErrorDetail,
+}: LoginFormProps) {
   const [state, formAction, pending] = useActionState(loginAction, initialState);
+  const oauthError = getAuthErrorMessage(authError, authErrorDetail);
 
   return (
     <Card className="w-full max-w-md border-border/50 bg-card/40 backdrop-blur-xl">
@@ -21,10 +35,12 @@ export function LoginForm() {
         <CardDescription>Sign in to your ArchFlow AI account</CardDescription>
       </CardHeader>
       <CardContent>
+        <GoogleSignInButton redirectTo={redirectTo} />
+        <AuthDivider />
         <form action={formAction} className="space-y-4">
-          {state.error && (
+          {(state.error || oauthError) && (
             <p className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
-              {state.error}
+              {state.error ?? oauthError}
             </p>
           )}
           <div className="space-y-2">

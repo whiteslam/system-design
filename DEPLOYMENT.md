@@ -114,9 +114,47 @@ All user data is scoped by `user_id` in schema policies. Do not disable RLS in p
 
 ---
 
+## Google OAuth (Supabase Auth)
+
+### 1. Google Cloud Console
+
+1. [Google Cloud Console](https://console.cloud.google.com/) → **APIs & Services → Credentials**.
+2. **Create Credentials → OAuth client ID** → type **Web application**.
+3. **Authorized redirect URIs** — add exactly (from Supabase dashboard):
+
+   `https://<YOUR-PROJECT-REF>.supabase.co/auth/v1/callback`
+
+4. Copy **Client ID** and **Client Secret**.
+
+### 2. Supabase Dashboard
+
+1. **Authentication → Providers → Google** → Enable.
+2. Paste Google **Client ID** and **Client Secret**.
+3. **Authentication → URL Configuration**:
+   - **Site URL:** `https://your-production-domain.com`
+   - **Redirect URLs** (add all):
+
+     ```
+     http://localhost:3000/auth/callback
+     https://your-production-domain.com/auth/callback
+     https://your-preview-*.vercel.app/auth/callback
+     ```
+
+### 3. Database (existing projects)
+
+Run `supabase/google-oauth-profile.sql` in the SQL editor so Google users get `full_name` from `name` metadata.
+
+### 4. Verify
+
+- `/login` and `/signup` show **Continue with Google**.
+- After sign-in, user lands on `/dashboard` and `public.users` has a row.
+
+---
+
 ## Post-deploy smoke test
 
 1. Register new user → lands on dashboard.
+2. **Sign in with Google** → lands on dashboard.
 2. Generate blueprint → completes, view blueprint page.
 3. Open Studio → drag node, wait for autosave (saved indicator).
 4. Run traffic simulation → metrics render.
