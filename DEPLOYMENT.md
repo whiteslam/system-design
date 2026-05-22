@@ -72,7 +72,9 @@ Deploy to **Vercel** (frontend + serverless) and **Supabase** (Postgres + Auth).
 
 \*Required for admin webhooks and service-role cron jobs.
 
-Copy from `.env.example` and fill values in **Vercel → Settings → Environment Variables** for Production, Preview, and Development.
+Copy from `.env.example` and fill values in **Vercel → Settings → Environment Variables** for **Production**, **Preview**, and **Development** (all three — otherwise `vercel env pull` wipes local `.env.local`).
+
+**Do not run `vercel env pull`** until every required variable exists on Vercel for the target environment. After adding vars on Vercel, you can run `./scripts/push-vercel-env.sh` from a filled `.env.local`, or add them manually in the dashboard.
 
 ---
 

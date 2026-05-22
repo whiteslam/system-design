@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { formatOAuthError } from "@/lib/auth-errors";
 import { Button } from "@/components/ui/button";
 
 function GoogleIcon({ className }: { className?: string }) {
@@ -49,7 +50,7 @@ export function GoogleSignInButton({
       const origin = window.location.origin;
       const next = redirectTo.startsWith("/") ? redirectTo : "/dashboard";
 
-      const { error: oauthError } = await supabase.auth.signInWithOAuth({
+      const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
           redirectTo: `${origin}/auth/callback?next=${encodeURIComponent(next)}`,
@@ -61,11 +62,22 @@ export function GoogleSignInButton({
       });
 
       if (oauthError) {
-        setError(oauthError.message);
+        setError(formatOAuthError(oauthError.message));
         setPending(false);
+        return;
       }
-    } catch {
-      setError("Could not start Google sign-in. Check Supabase configuration.");
+
+      if (data?.url) {
+        window.location.href = data.url;
+        return;
+      }
+
+      setError("Google sign-in did not return a redirect URL. Enable Google in Supabase → Authentication → Providers.");
+      setPending(false);
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Could not start Google sign-in.";
+      setError(message);
       setPending(false);
     }
   };

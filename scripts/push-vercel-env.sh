@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Push .env.local variables to Vercel (Production + Preview).
+# Push .env.local variables to Vercel (Development + Preview + Production).
+# Run AFTER filling .env.local — never run `vercel env pull` before Vercel has these keys.
 # Requires: npm i -g vercel && vercel login && vercel link
 set -euo pipefail
 
@@ -42,8 +43,8 @@ for key in "${REQUIRED_KEYS[@]}"; do
     echo "Skip (empty): $key"
     continue
   fi
-  echo "Setting $key for Production + Preview..."
-  printf '%s' "$value" | vercel env add "$key" production preview --force
+  echo "Setting $key for Development + Preview + Production..."
+  printf '%s' "$value" | vercel env add "$key" development preview production --force
 done
 
 echo ""
